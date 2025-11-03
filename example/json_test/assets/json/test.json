@@ -1,0 +1,156 @@
+{
+    "id": 12345,
+    "name": null,
+    "email": "test@example.com",
+    "age": 25,
+    "salary": 50000.50,
+    "is_active": true,
+    "is_verified": false,
+    "profile_image_url": null,
+    "tags": [
+        1,
+        2,
+        3,
+        "tag4",
+        null,
+        true
+    ],
+    "metadata": {
+        "created_by": 101,
+        "updated_by": null,
+        "version": 2.5,
+        "is_published": true,
+        "settings": {
+            "theme": "dark",
+            "notifications_enabled": false,
+            "max_items": 100,
+            "price": 99.99,
+            "nested_null": null
+        }
+    },
+    "business": {
+        "id": 999,
+        "name": null,
+        "legal_name": "Test Business Ltd",
+        "business_type_id": 5,
+        "sales_estimation_range_id": null,
+        "average_transaction_value": 1500.75,
+        "is_active": true,
+        "employee_count": 50,
+        "rating": 4.8,
+        "address": {
+            "street": null,
+            "city": "London",
+            "postcode": 12345,
+            "country": null,
+            "coordinates": {
+                "lat": 51.5074,
+                "long": -0.1278,
+                "altitude": null
+            }
+        },
+        "status": {
+            "value": 1,
+            "label": null,
+            "color": "#00FF00",
+            "is_default": false
+        }
+    },
+    "departments": [
+        {
+            "id": 10,
+            "name": "Engineering",
+            "description": null,
+            "head_count": 25,
+            "budget": 500000.00,
+            "is_active": true
+        },
+        {
+            "id": 20,
+            "name": null,
+            "description": "Sales Department",
+            "head_count": null,
+            "budget": null,
+            "is_active": false
+        }
+    ],
+    "qr_codes": [
+        {
+            "id": 1001,
+            "code": "QR123456",
+            "type": 2,
+            "type_label": null,
+            "amount_type": 1,
+            "amount_type_label": "Fixed",
+            "currency": "GBP",
+            "scan_count": 150,
+            "successful_payment_count": null,
+            "total_amount_collected": 25000.50,
+            "is_active": true,
+            "is_static": false,
+            "is_dynamic": true,
+            "has_expired": false,
+            "can_accept_payments": true,
+            "metadata": null,
+            "expires_at": null,
+            "created_at": "2024-01-15T10:30:00Z",
+            "store": {
+                "id": 501,
+                "name": null
+            },
+            "created_by": {
+                "id": 601,
+                "name": "John Doe"
+            }
+        }
+    ],
+    "permissions": [
+        true,
+        false,
+        true,
+        null,
+        false
+    ],
+    "scores": [
+        95.5,
+        87.3,
+        null,
+        92.0,
+        88.8
+    ],
+    "mixed_array": [
+        "string",
+        123,
+        45.67,
+        true,
+        null,
+        {
+            "nested_id": 777,
+            "nested_name": null,
+            "nested_active": false
+        }
+    ],
+    "empty_object": {},
+    "empty_array": [],
+    "deep_nesting": {
+        "level1": {
+            "id": 1,
+            "name": null,
+            "level2": {
+                "id": 2,
+                "value": 100.5,
+                "active": true,
+                "level3": {
+                    "id": 3,
+                    "data": null,
+                    "count": 999,
+                    "level4": {
+                        "id": 4,
+                        "final_value": null,
+                        "is_complete": false
+                    }
+                }
+            }
+        }
+    }
+}
