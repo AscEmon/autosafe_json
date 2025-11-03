@@ -4,8 +4,6 @@
 
 AutoSafe JSON automatically converts all JSON values to safe types, preventing the dreaded `type 'X' is not a subtype of type 'Y'` errors in Dart/Flutter applications.
 
-[![pub package](https://img.shields.io/pub/v/autosafe_json.svg)](https://pub.dev/packages/autosafe_json)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 ## The Problem 😫
 
@@ -146,10 +144,7 @@ factory Product.fromJson(Map<String, dynamic> json) {
 
 ## Complete Example 📝
 
-See the [example](example/) directory for a complete working example with:
-- `test.json` - Sample JSON data with various types
-- `test_response.dart` - Transformed model class
-- Usage demonstration
+See the [example](example/) directory for a complete working example 
 
 ```dart
 import 'dart:convert';
@@ -191,36 +186,6 @@ dart run autosafe lib/models/user_response.dart
 #   import 'package:autosafe_json/autosafe_json.dart';
 ```
 
-## API Reference 📚
-
-### SafeMap Extension
-
-```dart
-extension SafeMap on Map<String, dynamic> {
-  SafeJsonMap get autoSafe;
-}
-```
-
-### SafeJsonMap Class
-
-```dart
-class SafeJsonMap {
-  Map<String, dynamic> get raw;
-  dynamic operator [](String key);
-}
-```
-
-### NumGenericExtensions
-
-```dart
-extension NumGenericExtensions<T extends String> on T? {
-  double parseToDouble();  // Returns 0.0 on error
-  int parseToInt();        // Returns 0 on error
-  bool parseToBool();      // Returns false on error
-  String parseToString();  // Returns '' on null
-}
-```
-
 ## Best Practices 💡
 
 1. **Always add `autoSafe` in the base Response class only**
@@ -256,7 +221,7 @@ extension NumGenericExtensions<T extends String> on T? {
 4. **Use helper extensions for type conversions**
    ```dart
    // ✅ Good
-   age: json['age'].parseToInt()
+   age: json['age'].toString().parseToInt()
    
    // ❌ Avoid
    age: int.parse(json['age'])  // Can throw
@@ -268,7 +233,7 @@ extension NumGenericExtensions<T extends String> on T? {
 
 **Solution:** Make sure you're using `.parseToInt()` for int fields:
 ```dart
-age: json['age'].parseToInt()  // Not just json['age']
+age: json['age'].toString().parseToInt()  // Not just json['age']
 ```
 
 ### Issue: "Type 'String' is not a subtype of type 'Map<String, dynamic>'"
@@ -292,7 +257,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## Support ❤️
 
-If this package helped you, please give it a ⭐ on [GitHub](https://github.com/yourusername/autosafe_json)!
+If this package helped you, please give it a ⭐ on [GitHub](https://github.com/AscEmon/autosafe_json)!
 
 ## Changelog 📋
 
@@ -300,4 +265,4 @@ See [CHANGELOG.md](CHANGELOG.md) for a list of changes.
 
 ---
 
-Made with ❤️ by [Your Name]
+Made with ❤️ by [Abu Sayed Chowdhury](https://github.com/AscEmon)
