@@ -1,9 +1,9 @@
 import 'dart:convert';
+import 'dart:developer' as dev;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:json_test/model/test_response.dart';
-import 'dart:developer' as dev;
 
 void main() {
   runApp(const MyApp());
@@ -38,10 +38,12 @@ class _MyHomePageState extends State<MyHomePage> {
     _jsonParsingTest();
   }
 
+  TestResponse testResponse = TestResponse();
   void _jsonParsingTest() async {
     final rootJson = await rootBundle.loadString('assets/json/test.json');
-    final testResponse = TestResponse.fromJson(jsonDecode(rootJson));
+    testResponse = TestResponse.fromJson(jsonDecode(rootJson));
     dev.log(testResponse.toString());
+    setState(() {});
   }
 
   @override
@@ -51,10 +53,39 @@ class _MyHomePageState extends State<MyHomePage> {
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         title: const Text('JSON Test'),
       ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: const <Widget>[Text('Test')],
+      body: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 20.0),
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text("Email: ${testResponse.email}"),
+              Text("Name: ${testResponse.name}"),
+              Text("Age: ${testResponse.age}"),
+              Text("Salary: ${testResponse.salary}"),
+              Text("Is Active: ${testResponse.isActive}"),
+              Text("Is Verified: ${testResponse.isVerified}"),
+              Text("Profile Image URL: ${testResponse.profileImageUrl}"),
+              Text("City: ${testResponse.business?.address?.city}"),
+              ListView.builder(
+                itemCount: testResponse.tags?.length ?? 0,
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                itemBuilder: (context, index) =>
+                    Text("Tag $index: ${testResponse.tags?[index].toString()}"),
+              ),
+
+              ListView.builder(
+                itemCount: testResponse.permissions?.length ?? 0,
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                itemBuilder: (context, index) => Text(
+                  "Permission $index: ${testResponse.permissions?[index]?.toString()}",
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

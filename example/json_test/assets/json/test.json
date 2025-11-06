@@ -28,8 +28,7 @@
             "nested_null": null
         }
     },
-    "business": [
-        {
+    "business": {
         "id": 999,
         "name": null,
         "legal_name": "Test Business Ltd",
@@ -51,13 +50,12 @@
             }
         },
         "status": {
-            "value": "active",
-            "label": "Active",
-            "color": "green",
-            "is_default": true
+            "value": 1,
+            "label": null,
+            "color": "#00FF00",
+            "is_default": false
         }
-    }
-    ],
+    },
     "departments": [
         {
             "id": 10,
@@ -106,7 +104,13 @@
             }
         }
     ],
-    "permissions": ["true", "false", "true", "false", "true"],
+    "permissions": [
+        true,
+        false,
+        true,
+        null,
+        false
+    ],
     "scores": [
         95.5,
         87.3,
