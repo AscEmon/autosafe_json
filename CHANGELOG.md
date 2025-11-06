@@ -9,3 +9,7 @@
 * List<int?>, List<double?>, List<bool?> parsing support
 * Arrow function to block function conversion
 * Smart base class detection (Response classes, extends, first class)
+
+## 1.0.1
+* Added test example
+* SafeJson.asMap() and SafeJson.asList() methods for handling map/list mismatches
