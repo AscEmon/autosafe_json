@@ -11,25 +11,25 @@ TestResponse testResponseFromJson(String str) =>
 String testResponseToJson(TestResponse data) => json.encode(data.toJson());
 
 class TestResponse {
-  String? id;
-  String? name;
-  String? email;
-  String? age;
-  String? salary;
-  String? isActive;
-  String? isVerified;
-  String? profileImageUrl;
-  List<dynamic>? tags;
-  Metadata? metadata;
-  Business? business;
-  List<Department>? departments;
-  List<QrCode>? qrCodes;
-  List<bool?>? permissions;
-  List<double?>? scores;
-  List<dynamic>? mixedArray;
-  EmptyObject? emptyObject;
-  List<dynamic>? emptyArray;
-  DeepNesting? deepNesting;
+  final String? id;
+  final String? name;
+  final String? email;
+  final String? age;
+  final String? salary;
+  final String? isActive;
+  final String? isVerified;
+  final String? profileImageUrl;
+  final List<dynamic>? tags;
+  final Metadata? metadata;
+  final Business? business;
+  final List<Department>? departments;
+  final List<QrCode>? qrCodes;
+  final List<bool?>? permissions;
+  final List<double?>? scores;
+  final List<dynamic>? mixedArray;
+  final EmptyObject? emptyObject;
+  final List<dynamic>? emptyArray;
+  final DeepNesting? deepNesting;
 
   TestResponse({
     this.id,
@@ -65,29 +65,29 @@ class TestResponse {
     isVerified: json["is_verified"],
     profileImageUrl: json["profile_image_url"],
     tags: json["tags"] == null || json["tags"] == "" ? []
-        : List<dynamic>.from(json["tags"]!.map((x) => x)),
+        : List<dynamic>.from(SafeJson.asList(json["tags"]).map((x) => x)),
     metadata: json["metadata"] == null || json["metadata"] == "" ? null
-        : Metadata.fromJson(json["metadata"]),
+        : Metadata.fromJson(SafeJson.asMap(json["metadata"])),
     business: json["business"] == null || json["business"] == "" ? null
-        : Business.fromJson(json["business"]),
+        : Business.fromJson(SafeJson.asMap(json["business"])),
     departments: json["departments"] == null || json["departments"] == "" ? []
         : List<Department>.from(
             json["departments"]!.map((x) => Department.fromJson(x)),
           ),
     qrCodes: json["qr_codes"] == null || json["qr_codes"] == "" ? []
-        : List<QrCode>.from(json["qr_codes"]!.map((x) => QrCode.fromJson(x))),
+        : List<QrCode>.from(SafeJson.asList(json["qr_codes"]).map((x) => QrCode.fromJson(x))),
     permissions: json["permissions"] == null || json["permissions"] == "" ? []
-        : List<bool?>.from(json["permissions"]!.map((x) => x == null || x == "" ? null : x.toString().toLowerCase() == "true")),
+        : List<bool?>.from(SafeJson.asList(json["permissions"]).map((x) => x)),
     scores: json["scores"] == null || json["scores"] == "" ? []
-        : List<double?>.from(json["scores"]!.map((x) => x == null || x == "" ? null : double.tryParse(x.toString()))),
+        : List<double?>.from(SafeJson.asList(json["scores"]).map((x) => x)),
     mixedArray: json["mixed_array"] == null || json["mixed_array"] == "" ? []
-        : List<dynamic>.from(json["mixed_array"]!.map((x) => x)),
+        : List<dynamic>.from(SafeJson.asList(json["mixed_array"]).map((x) => x)),
     emptyObject: json["empty_object"] == null || json["empty_object"] == "" ? null
-        : EmptyObject.fromJson(json["empty_object"]),
+        : EmptyObject.fromJson(SafeJson.asMap(json["empty_object"])),
     emptyArray: json["empty_array"] == null || json["empty_array"] == "" ? []
-        : List<dynamic>.from(json["empty_array"]!.map((x) => x)),
+        : List<dynamic>.from(SafeJson.asList(json["empty_array"]).map((x) => x)),
     deepNesting: json["deep_nesting"] == null || json["deep_nesting"] == "" ? null
-        : DeepNesting.fromJson(json["deep_nesting"]),
+        : DeepNesting.fromJson(SafeJson.asMap(json["deep_nesting"])),
   );
   }
 
@@ -125,17 +125,17 @@ class TestResponse {
 }
 
 class Business {
-  String? id;
-  String? name;
-  String? legalName;
-  String? businessTypeId;
-  String? salesEstimationRangeId;
-  String? averageTransactionValue;
-  String? isActive;
-  String? employeeCount;
-  String? rating;
-  Address? address;
-  Status? status;
+  final String? id;
+  final String? name;
+  final String? legalName;
+  final String? businessTypeId;
+  final String? salesEstimationRangeId;
+  final String? averageTransactionValue;
+  final String? isActive;
+  final String? employeeCount;
+  final String? rating;
+  final Address? address;
+  final Status? status;
 
   Business({
     this.id,
@@ -161,8 +161,8 @@ class Business {
     isActive: json["is_active"],
     employeeCount: json["employee_count"],
     rating: json["rating"],
-    address: json["address"] == null || json["address"] == "" ? null : Address.fromJson(json["address"]),
-    status: json["status"] == null || json["status"] == "" ? null : Status.fromJson(json["status"]),
+    address: json["address"] == null || json["address"] == "" ? null : Address.fromJson(SafeJson.asMap(json["address"])),
+    status: json["status"] == null || json["status"] == "" ? null : Status.fromJson(SafeJson.asMap(json["status"])),
   );
 
   Map<String, dynamic> toJson() => {
@@ -181,11 +181,11 @@ class Business {
 }
 
 class Address {
-  String? street;
-  String? city;
-  String? postcode;
-  String? country;
-  Coordinates? coordinates;
+  final String? street;
+  final String? city;
+  final String? postcode;
+  final String? country;
+  final Coordinates? coordinates;
 
   Address({
     this.street,
@@ -201,7 +201,7 @@ class Address {
     postcode: json["postcode"],
     country: json["country"],
     coordinates: json["coordinates"] == null || json["coordinates"] == "" ? null
-        : Coordinates.fromJson(json["coordinates"]),
+        : Coordinates.fromJson(SafeJson.asMap(json["coordinates"])),
   );
 
   Map<String, dynamic> toJson() => {
@@ -214,9 +214,9 @@ class Address {
 }
 
 class Coordinates {
-  String? lat;
-  String? long;
-  String? altitude;
+  final String? lat;
+  final String? long;
+  final String? altitude;
 
   Coordinates({this.lat, this.long, this.altitude});
 
@@ -234,10 +234,10 @@ class Coordinates {
 }
 
 class Status {
-  String? value;
-  String? label;
-  String? color;
-  String? isDefault;
+  final String? value;
+  final String? label;
+  final String? color;
+  final String? isDefault;
 
   Status({this.value, this.label, this.color, this.isDefault});
 
@@ -257,28 +257,28 @@ class Status {
 }
 
 class DeepNesting {
-  Level1? level1;
+  final Level1? level1;
 
   DeepNesting({this.level1});
 
   factory DeepNesting.fromJson(Map<String, dynamic> json) => DeepNesting(
-    level1: json["level1"] == null || json["level1"] == "" ? null : Level1.fromJson(json["level1"]),
+    level1: json["level1"] == null || json["level1"] == "" ? null : Level1.fromJson(SafeJson.asMap(json["level1"])),
   );
 
   Map<String, dynamic> toJson() => {"level1": level1?.toJson()};
 }
 
 class Level1 {
-  String? id;
-  String? name;
-  Level2? level2;
+  final String? id;
+  final String? name;
+  final Level2? level2;
 
   Level1({this.id, this.name, this.level2});
 
   factory Level1.fromJson(Map<String, dynamic> json) => Level1(
     id: json["id"],
     name: json["name"],
-    level2: json["level2"] == null || json["level2"] == "" ? null : Level2.fromJson(json["level2"]),
+    level2: json["level2"] == null || json["level2"] == "" ? null : Level2.fromJson(SafeJson.asMap(json["level2"])),
   );
 
   Map<String, dynamic> toJson() => {
@@ -289,10 +289,10 @@ class Level1 {
 }
 
 class Level2 {
-  String? id;
-  String? value;
-  String? active;
-  Level3? level3;
+  final String? id;
+  final String? value;
+  final String? active;
+  final Level3? level3;
 
   Level2({this.id, this.value, this.active, this.level3});
 
@@ -300,7 +300,7 @@ class Level2 {
     id: json["id"],
     value: json["value"],
     active: json["active"],
-    level3: json["level3"] == null || json["level3"] == "" ? null : Level3.fromJson(json["level3"]),
+    level3: json["level3"] == null || json["level3"] == "" ? null : Level3.fromJson(SafeJson.asMap(json["level3"])),
   );
 
   Map<String, dynamic> toJson() => {
@@ -312,10 +312,10 @@ class Level2 {
 }
 
 class Level3 {
-  String? id;
-  String? data;
-  String? count;
-  Level4? level4;
+  final String? id;
+  final String? data;
+  final String? count;
+  final Level4? level4;
 
   Level3({this.id, this.data, this.count, this.level4});
 
@@ -323,7 +323,7 @@ class Level3 {
     id: json["id"],
     data: json["data"],
     count: json["count"],
-    level4: json["level4"] == null || json["level4"] == "" ? null : Level4.fromJson(json["level4"]),
+    level4: json["level4"] == null || json["level4"] == "" ? null : Level4.fromJson(SafeJson.asMap(json["level4"])),
   );
 
   Map<String, dynamic> toJson() => {
@@ -335,9 +335,9 @@ class Level3 {
 }
 
 class Level4 {
-  String? id;
-  String? finalValue;
-  String? isComplete;
+  final String? id;
+  final String? finalValue;
+  final String? isComplete;
 
   Level4({this.id, this.finalValue, this.isComplete});
 
@@ -355,12 +355,12 @@ class Level4 {
 }
 
 class Department {
-  String? id;
-  String? name;
-  String? description;
-  String? headCount;
-  String? budget;
-  String? isActive;
+  final String? id;
+  final String? name;
+  final String? description;
+  final String? headCount;
+  final String? budget;
+  final String? isActive;
 
   Department({
     this.id,
@@ -399,11 +399,11 @@ class EmptyObject {
 }
 
 class Metadata {
-  String? createdBy;
-  String? updatedBy;
-  String? version;
-  String? isPublished;
-  Settings? settings;
+  final String? createdBy;
+  final String? updatedBy;
+  final String? version;
+  final String? isPublished;
+  final Settings? settings;
 
   Metadata({
     this.createdBy,
@@ -419,7 +419,7 @@ class Metadata {
     version: json["version"],
     isPublished: json["is_published"],
     settings: json["settings"] == null || json["settings"] == "" ? null
-        : Settings.fromJson(json["settings"]),
+        : Settings.fromJson(SafeJson.asMap(json["settings"])),
   );
 
   Map<String, dynamic> toJson() => {
@@ -432,11 +432,11 @@ class Metadata {
 }
 
 class Settings {
-  String? theme;
-  String? notificationsEnabled;
-  String? maxItems;
-  String? price;
-  String? nestedNull;
+  final String? theme;
+  final String? notificationsEnabled;
+  final String? maxItems;
+  final String? price;
+  final String? nestedNull;
 
   Settings({
     this.theme,
@@ -464,9 +464,9 @@ class Settings {
 }
 
 class MixedArrayClass {
-  String? nestedId;
-  String? nestedName;
-  String? nestedActive;
+  final String? nestedId;
+  final String? nestedName;
+  final String? nestedActive;
 
   MixedArrayClass({this.nestedId, this.nestedName, this.nestedActive});
 
@@ -485,26 +485,26 @@ class MixedArrayClass {
 }
 
 class QrCode {
-  String? id;
-  String? code;
-  String? type;
-  String? typeLabel;
-  String? amountType;
-  String? amountTypeLabel;
-  String? currency;
-  String? scanCount;
-  String? successfulPaymentCount;
-  String? totalAmountCollected;
-  String? isActive;
-  String? isStatic;
-  String? isDynamic;
-  String? hasExpired;
-  String? canAcceptPayments;
-  String? metadata;
-  String? expiresAt;
-  DateTime? createdAt;
-  CreatedBy? store;
-  CreatedBy? createdBy;
+  final String? id;
+  final String? code;
+  final String? type;
+  final String? typeLabel;
+  final String? amountType;
+  final String? amountTypeLabel;
+  final String? currency;
+  final String? scanCount;
+  final String? successfulPaymentCount;
+  final String? totalAmountCollected;
+  final String? isActive;
+  final String? isStatic;
+  final String? isDynamic;
+  final String? hasExpired;
+  final String? canAcceptPayments;
+  final String? metadata;
+  final String? expiresAt;
+  final DateTime? createdAt;
+  final CreatedBy? store;
+  final CreatedBy? createdBy;
 
   QrCode({
     this.id,
@@ -549,9 +549,9 @@ class QrCode {
     expiresAt: json["expires_at"],
     createdAt: json["created_at"] == null || json["created_at"] == "" ? null
         : DateTime.parse(json["created_at"]),
-    store: json["store"] == null || json["store"] == "" ? null : CreatedBy.fromJson(json["store"]),
+    store: json["store"] == null || json["store"] == "" ? null : CreatedBy.fromJson(SafeJson.asMap(json["store"])),
     createdBy: json["created_by"] == null || json["created_by"] == "" ? null
-        : CreatedBy.fromJson(json["created_by"]),
+        : CreatedBy.fromJson(SafeJson.asMap(json["created_by"])),
   );
 
   Map<String, dynamic> toJson() => {
@@ -579,8 +579,8 @@ class QrCode {
 }
 
 class CreatedBy {
-  String? id;
-  String? name;
+  final String? id;
+  final String? name;
 
   CreatedBy({this.id, this.name});
 

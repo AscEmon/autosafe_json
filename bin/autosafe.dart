@@ -21,7 +21,8 @@ What it does:
   ✓ Removes type conversion methods (?.toDouble(), etc.)
   ✓ Handles List<int?>, List<double?>, List<bool?> parsing
   ✓ Converts arrow functions to block functions
-  ✓ Works with nested objects automatically
+  ✓ Automatically wraps Objects with SafeJson.asMap()
+  ✓ Automatically wraps Lists with SafeJson.asList()
 
 After transformation, add this import to your model file:
   import 'package:autosafe_json/autosafe_json.dart';
@@ -46,6 +47,7 @@ After transformation, add this import to your model file:
     content = transformFieldTypes(content);
     content = removeNestedAutoSafeCalls(content);
     content = addAutoSafeCall(content);
+    content = wrapObjectsAndLists(content);
     content = updateNullChecks(content);
 
     file.writeAsStringSync(content);
@@ -251,6 +253,111 @@ String addAutoSafeCall(String content) {
   }
 
   return result.join('\n');
+}
+
+String wrapObjectsAndLists(String content) {
+  // Pattern 1: Wrap custom objects with SafeJson.asMap()
+  // Match: ClassName.fromJson(json["field"])
+  // Replace with: ClassName.fromJson(SafeJson.asMap(json["field"]))
+  content = content.replaceAllMapped(
+    RegExp(r'(\w+)\.fromJson\(json\["(\w+)"\]\)'),
+    (m) {
+      final className = m.group(1);
+      final fieldName = m.group(2);
+      
+      // Don't wrap if it's already wrapped
+      if (content.contains('SafeJson.asMap(json["$fieldName"])')) {
+        return m.group(0)!;
+      }
+      
+      return '$className.fromJson(SafeJson.asMap(json["$fieldName"]))';
+    },
+  );
+
+  // Pattern 2: Wrap Lists of custom objects with SafeJson.asList()
+  // Match: List<ClassName>.from(json["field"]!.map((x) => ClassName.fromJson(x)))
+  // Replace with: List<ClassName>.from(SafeJson.asList(json["field"]).map((x) => ClassName.fromJson(x)))
+  content = content.replaceAllMapped(
+    RegExp(r'List<(\w+)>\.from\(json\["(\w+)"\]!\.map\(\(x\) => (\w+)\.fromJson\(x\)\)\)'),
+    (m) {
+      final listType = m.group(1);
+      final fieldName = m.group(2);
+      final className = m.group(3);
+      
+      // Don't wrap if it's already wrapped
+      if (content.contains('SafeJson.asList(json["$fieldName"])')) {
+        return m.group(0)!;
+      }
+      
+      return 'List<$listType>.from(SafeJson.asList(json["$fieldName"]).map((x) => $className.fromJson(x)))';
+    },
+  );
+
+  // Pattern 3: Wrap primitive Lists with SafeJson.asList() - but keep conversion logic
+  // For List<dynamic> - simple case
+  content = content.replaceAllMapped(
+    RegExp(r'List<dynamic>\.from\(json\["(\w+)"\]!\.map\(\(x\) => x\)\)'),
+    (m) {
+      final fieldName = m.group(1);
+      
+      // Don't wrap if it's already wrapped
+      if (content.contains('SafeJson.asList(json["$fieldName"])')) {
+        return m.group(0)!;
+      }
+      
+      return 'List<dynamic>.from(SafeJson.asList(json["$fieldName"]).map((x) => x))';
+    },
+  );
+
+  // For List<bool?> - keep the conversion logic
+  content = content.replaceAllMapped(
+    RegExp(r'List<bool\?>\.from\(json\["(\w+)"\]!\.map\(\(x\) => (.+?)\)\)'),
+    (m) {
+      final fieldName = m.group(1);
+      final conversion = m.group(2);
+      
+      // Don't wrap if it's already wrapped
+      if (content.contains('SafeJson.asList(json["$fieldName"])')) {
+        return m.group(0)!;
+      }
+      
+      return 'List<bool?>.from(SafeJson.asList(json["$fieldName"]).map((x) => $conversion))';
+    },
+  );
+
+  // For List<double?> - keep the conversion logic
+  content = content.replaceAllMapped(
+    RegExp(r'List<double\?>\.from\(json\["(\w+)"\]!\.map\(\(x\) => (.+?)\)\)'),
+    (m) {
+      final fieldName = m.group(1);
+      final conversion = m.group(2);
+      
+      // Don't wrap if it's already wrapped
+      if (content.contains('SafeJson.asList(json["$fieldName"])')) {
+        return m.group(0)!;
+      }
+      
+      return 'List<double?>.from(SafeJson.asList(json["$fieldName"]).map((x) => $conversion))';
+    },
+  );
+
+  // For List<int?> - keep the conversion logic
+  content = content.replaceAllMapped(
+    RegExp(r'List<int\?>\.from\(json\["(\w+)"\]!\.map\(\(x\) => (.+?)\)\)'),
+    (m) {
+      final fieldName = m.group(1);
+      final conversion = m.group(2);
+      
+      // Don't wrap if it's already wrapped
+      if (content.contains('SafeJson.asList(json["$fieldName"])')) {
+        return m.group(0)!;
+      }
+      
+      return 'List<int?>.from(SafeJson.asList(json["$fieldName"]).map((x) => $conversion))';
+    },
+  );
+
+  return content;
 }
 
 String updateNullChecks(String content) {

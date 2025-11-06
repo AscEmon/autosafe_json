@@ -139,7 +139,35 @@ class UserResponse {
 }
 ```
 
-### Step 4: Use Specific Types When Needed
+### Step 4: Handle Map/List Mismatches (Optional)
+
+If backend accidentally sends wrong structure (List instead of Map or vice versa), use `SafeJson.asMap()` or `SafeJson.asList()`:
+
+```dart
+// Backend sends: "status": ["active", "inactive"]  (List)
+// But you expect: Status object (Map)
+
+factory Business.fromJson(Map<String, dynamic> json) {
+  json = json.autoSafe.raw;
+  return Business(
+    status: json["status"] == null || json["status"] == "" 
+        ? null 
+        : Status.fromJson(SafeJson.asMap(json["status"])),  // ← Converts List to Map
+  );
+}
+```
+
+**What `SafeJson.asMap()` does:**
+```dart
+["active", "inactive"] → {"0": "active", "1": "inactive"}
+```
+
+**What `SafeJson.asList()` does:**
+```dart
+{"0": "value1", "1": "value2"} → ["value1", "value2"]
+```
+
+### Step 5: Use Specific Types When Needed
 
 If you need a field to be a specific type (int, double, bool), just declare it with that type and use the helper extensions:
 
