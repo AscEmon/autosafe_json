@@ -66,6 +66,8 @@
 
 //   /// Get the converted map
 //   Map<String, dynamic> get raw => _map;
+import 'package:autosafe_json/autosafe_json.dart';
+
 /// Extension for automatic safe JSON parsing
 /// Handles ALL type conversions automatically - NO MORE TYPE ERRORS!
 extension SafeMap on Map<String, dynamic> {
@@ -108,7 +110,7 @@ class SafeJsonMap {
   /// - String stays String
   /// - Maps and Lists processed recursively
   /// - Handles List↔Map mismatches gracefully
-  /// 
+  ///
   /// [smartConvert] - When true, adds helper methods for Map/List conversion
   static dynamic _convertValue(dynamic value, {bool smartConvert = false}) {
     if (value == null) {
@@ -118,7 +120,9 @@ class SafeJsonMap {
 
     // === Handle Lists safely ===
     if (value is List) {
-      return value.map((item) => _convertValue(item, smartConvert: smartConvert)).toList();
+      return value
+          .map((item) => _convertValue(item, smartConvert: smartConvert))
+          .toList();
     }
 
     // === Handle Maps safely ===
@@ -131,12 +135,26 @@ class SafeJsonMap {
     }
 
     // === Handle primitive values ===
-    if (value is int || value is double || value is bool) {
-      return value.toString();
+    // if (value is int || value is double || value is bool) {
+    //   try {
+    //     return value.toString();
+    //   } catch (e) {
+    //     return '';
+    //   }
+    // }
+    if (value is int) {
+      return SafeJson.asInt(value);
     }
-    
-    // Everything else (String, etc.)
-    return value.toString();
+    if (value is double) {
+      return SafeJson.asDouble(value);
+    }
+    if (value is bool) {
+      return SafeJson.asBool(value);
+    }
+    if (value is String) {
+      // Everything else (String, etc.)
+      return SafeJson.asString(value);
+    }
   }
 
   /// Safe getter for raw map
@@ -145,4 +163,3 @@ class SafeJsonMap {
   /// Access value by key
   dynamic operator [](String key) => _map[key];
 }
-

@@ -48,6 +48,7 @@ After transformation, add this import to your model file:
     content = removeNestedAutoSafeCalls(content);
     content = addAutoSafeCall(content);
     content = wrapObjectsAndLists(content);
+    content = wrapPrimitiveFields(content);
     content = updateNullChecks(content);
 
     file.writeAsStringSync(content);
@@ -80,23 +81,8 @@ String addAutoSafeImport(String content) {
 }
 
 String transformFieldTypes(String content) {
-  // Transform individual field types (both final and non-final)
-  // Match: final int? field; OR int? field;
-  content = content.replaceAllMapped(
-    RegExp(r'(final\s+)?int(\?)?(\s+\w+;)'),
-    (m) => '${m.group(1) ?? ''}String${m.group(2) ?? ''}${m.group(3)}',
-  );
-
-  content = content.replaceAllMapped(
-    RegExp(r'(final\s+)?double(\?)?(\s+\w+;)'),
-    (m) => '${m.group(1) ?? ''}String${m.group(2) ?? ''}${m.group(3)}',
-  );
-
-  content = content.replaceAllMapped(
-    RegExp(r'(final\s+)?bool(\?)?(\s+\w+;)'),
-    (m) => '${m.group(1) ?? ''}String${m.group(2) ?? ''}${m.group(3)}',
-  );
-
+  // Don't transform int, double, bool - keep them as-is
+  // Only transform dynamic to String?
   content = content.replaceAllMapped(
     RegExp(r'(final\s+)?dynamic(\s+\w+;)'),
     (m) => '${m.group(1) ?? ''}String?${m.group(2)}',
@@ -264,12 +250,12 @@ String wrapObjectsAndLists(String content) {
     (m) {
       final className = m.group(1);
       final fieldName = m.group(2);
-      
+
       // Don't wrap if it's already wrapped
       if (content.contains('SafeJson.asMap(json["$fieldName"])')) {
         return m.group(0)!;
       }
-      
+
       return '$className.fromJson(SafeJson.asMap(json["$fieldName"]))';
     },
   );
@@ -278,17 +264,18 @@ String wrapObjectsAndLists(String content) {
   // Match: List<ClassName>.from(json["field"]!.map((x) => ClassName.fromJson(x)))
   // Replace with: List<ClassName>.from(SafeJson.asList(json["field"]).map((x) => ClassName.fromJson(x)))
   content = content.replaceAllMapped(
-    RegExp(r'List<(\w+)>\.from\(json\["(\w+)"\]!\.map\(\(x\) => (\w+)\.fromJson\(x\)\)\)'),
+    RegExp(
+        r'List<(\w+)>\.from\(json\["(\w+)"\]!\.map\(\(x\) => (\w+)\.fromJson\(x\)\)\)'),
     (m) {
       final listType = m.group(1);
       final fieldName = m.group(2);
       final className = m.group(3);
-      
+
       // Don't wrap if it's already wrapped
       if (content.contains('SafeJson.asList(json["$fieldName"])')) {
         return m.group(0)!;
       }
-      
+
       return 'List<$listType>.from(SafeJson.asList(json["$fieldName"]).map((x) => $className.fromJson(x)))';
     },
   );
@@ -299,12 +286,12 @@ String wrapObjectsAndLists(String content) {
     RegExp(r'List<dynamic>\.from\(json\["(\w+)"\]!\.map\(\(x\) => x\)\)'),
     (m) {
       final fieldName = m.group(1);
-      
+
       // Don't wrap if it's already wrapped
       if (content.contains('SafeJson.asList(json["$fieldName"])')) {
         return m.group(0)!;
       }
-      
+
       return 'List<dynamic>.from(SafeJson.asList(json["$fieldName"]).map((x) => x))';
     },
   );
@@ -315,12 +302,12 @@ String wrapObjectsAndLists(String content) {
     (m) {
       final fieldName = m.group(1);
       final conversion = m.group(2);
-      
+
       // Don't wrap if it's already wrapped
       if (content.contains('SafeJson.asList(json["$fieldName"])')) {
         return m.group(0)!;
       }
-      
+
       return 'List<bool?>.from(SafeJson.asList(json["$fieldName"]).map((x) => $conversion))';
     },
   );
@@ -331,12 +318,12 @@ String wrapObjectsAndLists(String content) {
     (m) {
       final fieldName = m.group(1);
       final conversion = m.group(2);
-      
+
       // Don't wrap if it's already wrapped
       if (content.contains('SafeJson.asList(json["$fieldName"])')) {
         return m.group(0)!;
       }
-      
+
       return 'List<double?>.from(SafeJson.asList(json["$fieldName"]).map((x) => $conversion))';
     },
   );
@@ -347,12 +334,12 @@ String wrapObjectsAndLists(String content) {
     (m) {
       final fieldName = m.group(1);
       final conversion = m.group(2);
-      
+
       // Don't wrap if it's already wrapped
       if (content.contains('SafeJson.asList(json["$fieldName"])')) {
         return m.group(0)!;
       }
-      
+
       return 'List<int?>.from(SafeJson.asList(json["$fieldName"]).map((x) => $conversion))';
     },
   );
@@ -360,28 +347,128 @@ String wrapObjectsAndLists(String content) {
   return content;
 }
 
+String wrapPrimitiveFields(String content) {
+  final lines = content.split('\n');
+  final result = <String>[];
+  
+  // Track current class field types
+  final currentClassFields = <String, String>{};
+  var inClass = false;
+  
+  for (var i = 0; i < lines.length; i++) {
+    final line = lines[i];
+    
+    // Detect class start
+    if (line.contains('class ') && line.contains('{')) {
+      inClass = true;
+      currentClassFields.clear();
+      result.add(line);
+      continue;
+    }
+    
+    // Detect class end
+    if (inClass && line.trim() == '}' && !line.contains('factory') && !line.contains('Map<String')) {
+      // Check if this is the end of the class (not a method)
+      var braceCount = 0;
+      for (var j = i - 1; j >= 0; j--) {
+        braceCount += '{'.allMatches(lines[j]).length;
+        braceCount -= '}'.allMatches(lines[j]).length;
+        if (lines[j].contains('class ')) break;
+      }
+      if (braceCount == 0) {
+        inClass = false;
+        currentClassFields.clear();
+      }
+    }
+    
+    // Collect field types in current class
+    if (inClass) {
+      final fieldMatch = RegExp(r'final\s+(int|double|bool|String)\s*\?\s+(\w+)\s*;').firstMatch(line);
+      if (fieldMatch != null) {
+        final type = fieldMatch.group(1)!;
+        final fieldName = fieldMatch.group(2)!;
+        currentClassFields[fieldName] = type;
+      }
+    }
+    
+    // Check if already wrapped or has null check
+    if (line.contains('SafeJson.') || line.contains('== null')) {
+      result.add(line);
+      continue;
+    }
+    
+    // Wrap json assignments
+    if (line.contains('json["')) {
+      var modifiedLine = line;
+      final pattern = RegExp(r'(\w+):\s*json\["(\w+)"\]');
+      final matches = pattern.allMatches(line);
+      
+      for (var match in matches) {
+        final fieldName = match.group(1)!;
+        final jsonKey = match.group(2)!;
+        
+        if (currentClassFields.containsKey(fieldName)) {
+          final type = currentClassFields[fieldName]!;
+          
+          if (type == 'int') {
+            modifiedLine = modifiedLine.replaceFirst(
+              'json["$jsonKey"]',
+              'SafeJson.asInt(json["$jsonKey"])',
+            );
+          } else if (type == 'bool') {
+            modifiedLine = modifiedLine.replaceFirst(
+              'json["$jsonKey"]',
+              'SafeJson.asBool(json["$jsonKey"])',
+            );
+          } else if (type == 'double') {
+            modifiedLine = modifiedLine.replaceFirst(
+              'json["$jsonKey"]',
+              'SafeJson.asDouble(json["$jsonKey"])',
+            );
+          } else if (type == 'String') {
+            modifiedLine = modifiedLine.replaceFirst(
+              'json["$jsonKey"]',
+              'SafeJson.asString(json["$jsonKey"])',
+            );
+          }
+        }
+      }
+      
+      result.add(modifiedLine);
+    } else {
+      result.add(line);
+    }
+  }
+  
+  return result.join('\n');
+}
+
 String updateNullChecks(String content) {
   // First, remove type conversion methods like ?.toDouble(), ?.toString(), ?.toInt()
-  content = content.replaceAll(RegExp(r'\?\.(toDouble|toString|toInt)\(\)'), '');
-  
+  content =
+      content.replaceAll(RegExp(r'\?\.(toDouble|toString|toInt)\(\)'), '');
+
   // Update List<int?> mapping to parse int
   content = content.replaceAllMapped(
     RegExp(r'List<int\?>.from\(json\["(\w+)"\]!\.map\(\(x\) => x\)\)'),
-    (m) => 'List<int?>.from(json["${m.group(1)}"]!.map((x) => x == null || x == "" ? null : int.tryParse(x.toString())))',
+    (m) =>
+        'List<int?>.from(json["${m.group(1)}"]!.map((x) => x == null || x == "" ? null : int.tryParse(x.toString())))',
   );
-  
+
   // Update List<double?> mapping to parse double
   content = content.replaceAllMapped(
     RegExp(r'List<double\?>.from\(json\["(\w+)"\]!\.map\(\(x\) => x\)\)'),
-    (m) => 'List<double?>.from(json["${m.group(1)}"]!.map((x) => x == null || x == "" ? null : double.tryParse(x.toString())))',
+    (m) =>
+        'List<double?>.from(json["${m.group(1)}"]!.map((x) => x == null || x == "" ? null : double.tryParse(x.toString())))',
   );
-  
+
   // Update List<bool?> mapping to parse bool
   content = content.replaceAllMapped(
     RegExp(r'List<bool\?>.from\(json\["(\w+)"\]!\.map\(\(x\) => x\)\)'),
-    (m) => 'List<bool?>.from(json["${m.group(1)}"]!.map((x) => x == null || x == "" ? null : x.toString().toLowerCase() == "true"))',
+    (m) =>
+        'List<bool?>.from(json["${m.group(1)}"]!.map((x) => x == null || x == "" ? null : x.toString().toLowerCase() == "true"))',
   );
-  
+
   // Then update null checks to include empty string checks
   // This handles both single-line and multi-line patterns
   content = content.replaceAllMapped(
@@ -391,7 +478,7 @@ String updateNullChecks(String content) {
       return 'json["$field"] == null || json["$field"] == "" ?';
     },
   );
-  
+
   // Also handle the pattern: json["field"] == null (without the ?)
   // This catches cases like: json["department"] == null
   content = content.replaceAllMapped(
@@ -401,6 +488,6 @@ String updateNullChecks(String content) {
       return 'json["$field"] == null || json["$field"] == ""';
     },
   );
-  
+
   return content;
 }

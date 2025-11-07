@@ -38,11 +38,13 @@ class _MyHomePageState extends State<MyHomePage> {
     _jsonParsingTest();
   }
 
-  TestResponse testResponse = TestResponse();
+  TestResponse? response;
+  Data? testData;
   void _jsonParsingTest() async {
     final rootJson = await rootBundle.loadString('assets/json/test.json');
-    testResponse = TestResponse.fromJson(jsonDecode(rootJson));
-    dev.log(testResponse.toString());
+    response = TestResponse.fromJson(jsonDecode(rootJson));
+    testData = response?.data;
+    dev.log(jsonEncode(testData));
     setState(() {});
   }
 
@@ -60,28 +62,28 @@ class _MyHomePageState extends State<MyHomePage> {
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text("Email: ${testResponse.email}"),
-              Text("Name: ${testResponse.name}"),
-              Text("Age: ${testResponse.age}"),
-              Text("Salary: ${testResponse.salary}"),
-              Text("Is Active: ${testResponse.isActive}"),
-              Text("Is Verified: ${testResponse.isVerified}"),
-              Text("Profile Image URL: ${testResponse.profileImageUrl}"),
-              Text("City: ${testResponse.business?.address?.city}"),
+              Text("Email: ${testData?.email??'N/A'}"),
+              Text("Name: ${testData?.name??'N/A'}"),
+              Text("Age: ${testData?.age??'N/A'}"),
+              Text("Salary: ${testData?.salary??'N/A'}"),
+              Text("Is Active: ${testData?.isActive??'N/A'}"),
+              Text("Is Verified: ${testData?.isVerified??'N/A'}"),
+              Text("Profile Image URL: ${testData?.profileImageUrl??'N/A'}"),
+              Text("City: ${testData?.business?.address?.city??'N/A'}"),
               ListView.builder(
-                itemCount: testResponse.tags?.length ?? 0,
+                itemCount: testData?.tags?.length ?? 0,
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
                 itemBuilder: (context, index) =>
-                    Text("Tag $index: ${testResponse.tags?[index].toString()}"),
+                    Text("Tag $index: ${testData?.tags?[index].toString()??'N/A'}"),
               ),
 
               ListView.builder(
-                itemCount: testResponse.permissions?.length ?? 0,
+                itemCount: testData?.permissions?.length ?? 0,
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
                 itemBuilder: (context, index) => Text(
-                  "Permission $index: ${testResponse.permissions?[index]?.toString()}",
+                  "Permission $index: ${testData?.permissions?[index]?.toString()??'N/A'}",
                 ),
               ),
             ],
