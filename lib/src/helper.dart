@@ -38,13 +38,8 @@ class SafeJson {
       if (value is List) {
         list = value;
       } else if (value is Map) {
-        try {
-          print("enter $value");
-          list = value.values.toList();
-        } catch (_) {
-          print("enter catch ::$value");
-          return list = [];
-        }
+        // If it's a Map, return empty list (Maps should use asMap, not asList)
+        return [];
       } else {
         list = [value];
       }

@@ -1,5 +1,5 @@
 {
-    "code": 200,
+    "code": "200",
     "message": "Success",
     "data": {
         "id": 12345,
@@ -44,17 +44,14 @@
                 "postcode": 12345,
                 "country": null,
                 "coordinates": {
-                    "lat": 51.5074,
+                    "lat": null,
                     "long": -0.1278,
                     "altitude": null
                 }
             },
-            "status": {
-                "value": 1,
-                "label": null,
-                "color": "#00FF00",
-                "is_default": false
-            }
+            "status": [
+                false
+            ]
         },
         "departments": [
             {
@@ -104,15 +101,13 @@
                 }
             }
         ],
-        "permissions": {
-            "person": [
-                true,
-                false,
-                true,
-                null,
-                false
-            ]
-        },
+        "permissions": [
+            true,
+            false,
+            true,
+            null,
+            false
+        ],
         "scores": [
             95.5,
             87.3,

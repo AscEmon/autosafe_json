@@ -5,12 +5,12 @@
 import 'dart:convert';
 import 'package:autosafe_json/autosafe_json.dart';
 
-TestResponse testResponseFromJson(String str) => TestResponse.fromJson(json.decode(str));
+List<TestResponse> testResponseFromJson(String str) => List<TestResponse>.from(json.decode(str).map((x) => TestResponse.fromJson(x)));
 
-String testResponseToJson(TestResponse data) => json.encode(data.toJson());
+String testResponseToJson(List<TestResponse> data) => json.encode(List<dynamic>.from(data.map((x) => x.toJson())));
 
 class TestResponse {
-    final int? code;
+    final String? code;
     final String? message;
     final Data? data;
 
@@ -23,7 +23,7 @@ class TestResponse {
     factory TestResponse.fromJson(Map<String, dynamic> json) {
     json = json.autoSafe.raw;
     return TestResponse(
-        code: SafeJson.asInt(json["code"]),
+        code: SafeJson.asString(json["code"]),
         message: SafeJson.asString(json["message"]),
         data: json["data"] == null || json["data"] == "" ? null : Data.fromJson(SafeJson.asMap(json["data"])),
     );
@@ -40,12 +40,12 @@ class Data {
     final int? id;
     final String? name;
     final String? email;
-    final int? age;
-    final double? salary;
-    final bool? isActive;
+    final String? age;
+    final String? salary;
+    final IsActive? isActive;
     final bool? isVerified;
     final String? profileImageUrl;
-    final List<dynamic>? tags;
+    final String? tags;
     final Metadata? metadata;
     final Business? business;
     final List<Department>? departments;
@@ -83,12 +83,12 @@ class Data {
         id: SafeJson.asInt(json["id"]),
         name: SafeJson.asString(json["name"]),
         email: SafeJson.asString(json["email"]),
-        age: SafeJson.asInt(json["age"]),
-        salary: SafeJson.asDouble(json["salary"]),
-        isActive: SafeJson.asBool(json["is_active"]),
+        age: SafeJson.asString(json["age"]),
+        salary: SafeJson.asString(json["salary"]),
+        isActive: json["is_active"] == null || json["is_active"] == "" ? null : IsActive.fromJson(SafeJson.asMap(json["is_active"])),
         isVerified: SafeJson.asBool(json["is_verified"]),
         profileImageUrl: SafeJson.asString(json["profile_image_url"]),
-        tags: json["tags"] == null || json["tags"] == "" ? [] : List<dynamic>.from(SafeJson.asList(json["tags"]).map((x) => x)),
+        tags: SafeJson.asString(json["tags"]),
         metadata: json["metadata"] == null || json["metadata"] == "" ? null : Metadata.fromJson(SafeJson.asMap(json["metadata"])),
         business: json["business"] == null || json["business"] == "" ? null : Business.fromJson(SafeJson.asMap(json["business"])),
         departments: json["departments"] == null || json["departments"] == "" ? [] : List<Department>.from(SafeJson.asList(json["departments"]).map((x) => Department.fromJson(x))),
@@ -107,10 +107,10 @@ class Data {
         "email": email,
         "age": age,
         "salary": salary,
-        "is_active": isActive,
+        "is_active": isActive?.toJson(),
         "is_verified": isVerified,
         "profile_image_url": profileImageUrl,
-        "tags": tags == null ? [] : List<dynamic>.from(tags!.map((x) => x)),
+        "tags": tags,
         "metadata": metadata?.toJson(),
         "business": business?.toJson(),
         "departments": departments == null ? [] : List<dynamic>.from(departments!.map((x) => x.toJson())),
@@ -135,7 +135,7 @@ class Business {
     final int? employeeCount;
     final double? rating;
     final Address? address;
-    final Status? status;
+    final List<bool>? status;
 
     Business({
         this.id,
@@ -162,7 +162,7 @@ class Business {
         employeeCount: SafeJson.asInt(json["employee_count"]),
         rating: SafeJson.asDouble(json["rating"]),
         address: json["address"] == null || json["address"] == "" ? null : Address.fromJson(SafeJson.asMap(json["address"])),
-        status: json["status"] == null || json["status"] == "" ? null : Status.fromJson(SafeJson.asMap(json["status"])),
+        status: json["status"] == null || json["status"] == "" ? [] : List<bool>.from(json["status"]!.map((x) => x)),
     );
 
     Map<String, dynamic> toJson() => {
@@ -176,7 +176,7 @@ class Business {
         "employee_count": employeeCount,
         "rating": rating,
         "address": address?.toJson(),
-        "status": status?.toJson(),
+        "status": status == null ? [] : List<dynamic>.from(status!.map((x) => x)),
     };
 }
 
@@ -213,7 +213,7 @@ class Address {
 }
 
 class Coordinates {
-    final double? lat;
+    final String? lat;
     final double? long;
     final String? altitude;
 
@@ -224,7 +224,7 @@ class Coordinates {
     });
 
     factory Coordinates.fromJson(Map<String, dynamic> json) => Coordinates(
-        lat: SafeJson.asDouble(json["lat"]),
+        lat: SafeJson.asString(json["lat"]),
         long: SafeJson.asDouble(json["long"]),
         altitude: SafeJson.asString(json["altitude"]),
     );
@@ -233,34 +233,6 @@ class Coordinates {
         "lat": lat,
         "long": long,
         "altitude": altitude,
-    };
-}
-
-class Status {
-    final int? value;
-    final String? label;
-    final String? color;
-    final bool? isDefault;
-
-    Status({
-        this.value,
-        this.label,
-        this.color,
-        this.isDefault,
-    });
-
-    factory Status.fromJson(Map<String, dynamic> json) => Status(
-        value: SafeJson.asInt(json["value"]),
-        label: SafeJson.asString(json["label"]),
-        color: SafeJson.asString(json["color"]),
-        isDefault: SafeJson.asBool(json["is_default"]),
-    );
-
-    Map<String, dynamic> toJson() => {
-        "value": value,
-        "label": label,
-        "color": color,
-        "is_default": isDefault,
     };
 }
 
@@ -427,6 +399,22 @@ class EmptyObject {
     );
 
     Map<String, dynamic> toJson() => {
+    };
+}
+
+class IsActive {
+    final List<String>? v;
+
+    IsActive({
+        this.v,
+    });
+
+    factory IsActive.fromJson(Map<String, dynamic> json) => IsActive(
+        v: json["v"] == null || json["v"] == "" ? [] : List<String>.from(json["v"]!.map((x) => x)),
+    );
+
+    Map<String, dynamic> toJson() => {
+        "v": v == null ? [] : List<dynamic>.from(v!.map((x) => x)),
     };
 }
 
