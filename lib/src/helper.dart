@@ -1,8 +1,14 @@
-/// Extension for safe access to dynamic JSON values
-/// Extension for safe Map conversions that works with any type
-/// Generic extension for type checking
+/// Utility helpers that coerce dynamic JSON values into safe Dart primitives.
+///
+/// These helpers are used by the CLI-generated code as well as at runtime to
+/// accept inconsistent backend payloads while keeping strongly typed models.
 class SafeJson {
-  /// Safely convert to Map
+  /// Convert any dynamic input into a `Map<String, dynamic>`.
+  ///
+  /// - `null`/`` -> `{}`
+  /// - `Map`     -> cloned map (keeps original key/value types)
+  /// - `List`    -> index-based map (`{"0": value}`)
+  /// - primitive -> single-entry map (`{"0": value}`)
   static Map<String, dynamic> asMap(dynamic thisValue) {
     final value = thisValue;
     if (value == null || value == '') return {};
@@ -22,12 +28,16 @@ class SafeJson {
     return {'0': value};
   }
 
-  /// Safely convert to List and restore primitive types
-  /// This reverses the autoSafe conversion for List items:
-  /// - "true"/"false" → bool
-  /// - "123" → int (if it's a valid int)
-  /// - "123.45" → double (if it's a valid double)
-  /// - "" → null
+  /// Convert any dynamic input into a `List` while restoring primitives.
+  ///
+  /// - `null`/`` -> `[]`
+  /// - `List`    -> returned as-is with primitive restoration
+  /// - `Map`     -> returns `[]` (maps should use [asMap])
+  /// - primitive -> wrapped in a single-element list
+  ///
+  /// Each String element is parsed back to its original primitive where
+  /// possible (`"true"` → `true`, numeric strings → `int`/`double`). Empty
+  /// strings become `null`.
   static List<dynamic> asList(dynamic thisValue) {
     try {
       final value = thisValue;
@@ -73,14 +83,11 @@ class SafeJson {
     }
   }
 
-  /// Parse String to double
+  /// Coerce the supplied value to `double`.
   ///
-  /// Returns 0.0 if parsing fails or value is null/empty
-  ///
-  /// Example:
-  /// ```dart
-  /// final price = json['price'].parseToDouble(); // "99.99" → 99.99
-  /// ```
+  /// - `null`/``  -> `0.0`
+  /// - parsable   -> parsed `double`
+  /// - otherwise  -> `0.0`
   static double asDouble(dynamic thisValue) {
     final value = thisValue?.toString();
     if (value == null || value == '') {
@@ -93,14 +100,10 @@ class SafeJson {
     }
   }
 
-  /// Parse to String (safe toString)
+  /// Coerce the supplied value to `String` using a safe `toString`.
   ///
-  /// Returns empty string if value is null
-  ///
-  /// Example:
-  /// ```dart
-  /// final name = json['name'].parseToString(); // null → ''
-  /// ```
+  /// - `null`/`` -> `""`
+  /// - otherwise -> `value.toString()`
   static String asString(dynamic thisValue) {
     final value = thisValue?.toString();
     if (value == null || value == '') {
@@ -113,14 +116,11 @@ class SafeJson {
     }
   }
 
-  /// Parse String to int
+  /// Coerce the supplied value to `int`.
   ///
-  /// Returns 0 if parsing fails or value is null/empty
-  ///
-  /// Example:
-  /// ```dart
-  /// final age = json['age'].parseToInt(); // "25" → 25
-  /// ```
+  /// - `null`/``  -> `0`
+  /// - parsable   -> parsed `int`
+  /// - otherwise  -> `0`
   static int asInt(dynamic thisValue) {
     final value = thisValue?.toString();
     if (value == null || value == '') {
@@ -133,14 +133,11 @@ class SafeJson {
     }
   }
 
-  /// Parse String to bool
+  /// Coerce the supplied value to `bool`.
   ///
-  /// Returns false if parsing fails or value is null/empty
-  ///
-  /// Example:
-  /// ```dart
-  /// final isActive = json['is_active'].parseToBool(); // "true" → true
-  /// ```
+  /// - `null`/``        -> `false`
+  /// - case-insensitive "true" -> `true`
+  /// - any other string/primitive -> `false`
   static bool asBool(dynamic thisValue) {
     final value = thisValue?.toString();
     if (value == null || value == '') {

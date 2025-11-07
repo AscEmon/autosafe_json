@@ -1,6 +1,6 @@
 name: autosafe_json
 description: Automatic safe JSON parsing for Dart/Flutter. Eliminates type mismatch errors by converting all JSON values to safe types. Includes CLI tool to transform your model classes automatically.
-version: 1.0.1
+version: 1.0.2
 repository: https://github.com/AscEmon/autosafe_json
 
 environment:

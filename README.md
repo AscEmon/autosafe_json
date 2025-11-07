@@ -30,10 +30,6 @@ Example JSON:
 
 This generates a model like:
 ```dart
-// To parse this JSON data, do
-//
-//     final userResponse = userResponseFromJson(jsonString);
-
 import 'dart:convert';
 
 UserResponse userResponseFromJson(String str) => UserResponse.fromJson(json.decode(str));
@@ -90,30 +86,30 @@ Run the AutoSafe CLI to automatically transform your model:
 
 ```bash
 # From the autosafe_json package directory
-cd /path/to/autosafe_json
-dart run bin/autosafe.dart /path/to/your/model/user_response.dart
+1. dart pub global activate autosafe_json //it will install the autosafe_json package globally .Dont need to run this every time
 
-# Or use the full path
-dart /path/to/autosafe_json/bin/autosafe.dart /path/to/your/model/user_response.dart
+2. autosafe /path/to/your/model/user_response.dart //run this every time you want to transform your model
+
+
 ```
 
 **What the CLI does:**
 - ✅ Adds `json = json.autoSafe.raw;` to your base Response class
-- ✅ Converts all field types to `String?` (int, double, bool, dynamic → String)
-- ✅ Updates null checks to handle empty strings
-- ✅ Handles List parsing for `List<int?>`, `List<double?>`, `List<bool?>`
+- ✅ Automatically wraps primitive fields with the correct helper (`SafeJson.asInt`, `SafeJson.asDouble`, `SafeJson.asBool`, `SafeJson.asString`)
+- ✅ Wraps nested Maps/Lists with `SafeJson.asMap` / `SafeJson.asList`
+- ✅ Updates null checks to handle `null` / empty string gracefully
 
 **After transformation:**
 ```dart
 import 'package:autosafe_json/autosafe_json.dart';
 
 class UserResponse {
- final String? id;          // ← Changed from int?
- final String? name;        // ← Changed from dynamic
- final String? email;
- final String? age;         // ← Changed from int?
- final String? salary;      // ← Changed from double?
- final String? isActive;    // ← Changed from bool?
+  final int? id;            // ← Primitive type preserved
+  final String? name;
+  final String? email;
+  final int? age;            // ← Primitive type preserved
+  final double? salary;      // ← Primitive type preserved
+  final bool? isActive;      // ← Primitive type preserved
 
 
  const UserResponse({
@@ -128,12 +124,12 @@ class UserResponse {
   factory UserResponse.fromJson(Map<String, dynamic> json) {
     json = json.autoSafe.raw;  // ← Added automatically!
     return UserResponse(
-      id: json["id"],
-      name: json["name"],
-      email: json["email"],
-      age: json["age"],
-      salary: json["salary"],
-      isActive: json["is_active"],
+      id: SafeJson.asInt(json["id"]),
+      name: SafeJson.asString(json["name"]),
+      email: SafeJson.asString(json["email"]),
+      age: SafeJson.asInt(json["age"]),
+      salary: SafeJson.asDouble(json["salary"]),
+      isActive: SafeJson.asBool(json["is_active"]),
     );
   }
 }
@@ -165,11 +161,12 @@ factory Business.fromJson(Map<String, dynamic> json) {
 **What `SafeJson.asList()` does:**
 ```dart
 {"0": "value1", "1": "value2"} → ["value1", "value2"]
+// If a Map is passed to asList(), it safely returns []
 ```
 
 ### Step 5: Use Specific Types When Needed
 
-If you need a field to be a specific type (int, double, bool), just declare it with that type and use the helper extensions:
+Declare the field with the type you expect and let the CLI insert the proper helper call:
 
 ```dart
 class UserResponse {
@@ -193,12 +190,12 @@ class UserResponse {
   factory UserResponse.fromJson(Map<String, dynamic> json) {
     json = json.autoSafe.raw;
     return UserResponse(
-      id: json["id"].toString().parseToInt(),           // ← Convert back to int
-      name: json["name"],
-      email: json["email"],
-      age: json["age"].toString().parseToInt(),         // ← Convert back to int
-      salary: json["salary"].toString().parseToDouble(), // ← Convert back to double
-      isActive: json["is_active"].toString().parseToBool(), // ← Convert back to bool
+      id: SafeJson.asInt(json["id"]),
+      name: SafeJson.asString(json["name"]),
+      email: SafeJson.asString(json["email"]),
+      age: SafeJson.asInt(json["age"]),
+      salary: SafeJson.asDouble(json["salary"]),
+      isActive: SafeJson.asBool(json["is_active"]),
     );
   }
 }
@@ -222,27 +219,7 @@ class UserResponse {
 
 ### How It Works 🔧
 
-AutoSafe JSON uses a simple strategy to eliminate type errors:
-
-```dart
-/// Convert any value to a safe type:
-/// - null → '' (empty string)
-/// - int/double/bool → String (prevents type mismatch)
-/// - String stays String
-/// - Maps and Lists are processed recursively
-```
-
-**Example transformations:**
-```dart
-// Input JSON values → AutoSafe output
-null           → ""
-123            → "123"
-45.67          → "45.67"
-true           → "true"
-"hello"        → "hello"
-{"key": null}  → {"key": null} //Map and list are not changed
-[1, null, 3]   → [1, null, 3] //Map and list are not changed
-```
+AutoSafe JSON keeps your model types intact and uses helper methods to safely coerce JSON values at runtime. The helpers handle malformed data (e.g. strings that should be numbers, `"true"` vs `true`) and fall back to `null` when conversion fails.
 
 ---
 
@@ -264,26 +241,6 @@ true           → "true"
    - Consistent transformations
    - Handles edge cases
 
-
-## Troubleshooting 🔍
-
-### Issue: "Type 'String' is not a subtype of type 'int'"
-
-**Solution:** Make sure you're using `.parseToInt()` for int fields:
-```dart
-age: json['age'].toString().parseToInt()  // Not just json['age']
-```
-
-### Issue: "Type 'String' is not a subtype of type 'Map<String, dynamic>'"
-
-**Solution:** Check for null/empty before parsing nested objects:
-```dart
-user: json['user'] == null || json['user'] == ''
-    ? null
-    : User.fromJson(json['user'])
-```
-
-The CLI automatically adds these checks!
 
 ## Contributing 🤝
 

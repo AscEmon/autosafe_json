@@ -5,26 +5,27 @@ import 'dart:io';
 void main(List<String> args) {
   if (args.isEmpty) {
     print('''
-AutoSafe JSON - Automatic Safe JSON Parser
-===========================================
+AutoSafe JSON CLI
+=================
 
-Usage: dart run autosafe <file_path>
+Usage:
+  autosafe <path_to_model.dart>
 
-Example:
-  dart run autosafe lib/models/user_response.dart
-  dart run autosafe lib/data/models/product_response.dart
+First time setup:
+  dart pub global activate autosafe_json
+
+Examples:
+  autosafe lib/models/user_response.dart
+  autosafe lib/data/models/product_response.dart
 
 What it does:
-  ✓ Adds json = json.autoSafe.raw; to base Response class
-  ✓ Converts int/double/bool/dynamic fields to String
-  ✓ Updates null checks to handle empty strings
-  ✓ Removes type conversion methods (?.toDouble(), etc.)
-  ✓ Handles List<int?>, List<double?>, List<bool?> parsing
-  ✓ Converts arrow functions to block functions
-  ✓ Automatically wraps Objects with SafeJson.asMap()
-  ✓ Automatically wraps Lists with SafeJson.asList()
+  ✓ Inserts `json = json.autoSafe.raw;` in the base factory
+  ✓ Preserves your declared primitive types while adding SafeJson helpers
+  ✓ Wraps nested objects/lists with `SafeJson.asMap` / `SafeJson.asList`
+  ✓ Expands arrow factories into block factories when needed
+  ✓ Cleans up null checks and redundant `?.toDouble()` style conversions
 
-After transformation, add this import to your model file:
+Remember to import:
   import 'package:autosafe_json/autosafe_json.dart';
 ''');
     exit(1);
