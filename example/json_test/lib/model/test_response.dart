@@ -5,9 +5,9 @@
 import 'dart:convert';
 import 'package:autosafe_json/autosafe_json.dart';
 
-List<TestResponse> testResponseFromJson(String str) => List<TestResponse>.from(json.decode(str).map((x) => TestResponse.fromJson(x)));
+TestResponse testResponseFromJson(String str) => TestResponse.fromJson(json.decode(str));
 
-String testResponseToJson(List<TestResponse> data) => json.encode(List<dynamic>.from(data.map((x) => x.toJson())));
+String testResponseToJson(TestResponse data) => json.encode(data.toJson());
 
 class TestResponse {
     final String? code;

@@ -7,14 +7,13 @@
         "email": null,
         "age": "25",
         "salary": "Abul",
-        "is_active": {
-            "v": [
-                "true"
-            ]
-        },
+        "is_active": true,
         "is_verified": false,
         "profile_image_url": null,
-        "tags": "",
+        "tags": [
+            false,
+            true
+        ],
         "metadata": {
             "created_by": 101,
             "updated_by": null,
