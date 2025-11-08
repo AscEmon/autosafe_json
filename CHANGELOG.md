@@ -19,3 +19,7 @@
 * Added SafeJson.asDouble(), SafeJson.asString(), SafeJson.asInt(), SafeJson.asBool() methods for handling type mismatches
 * Added SafeJson.asList() and SafeJson.asMap() methods for handling list/map mismatches
 * preserve primitive types as it is
+
+## 1.0.3
+* Update Example and Readme file
+* Update CHANGELOG file

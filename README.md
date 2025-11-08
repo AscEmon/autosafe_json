@@ -24,53 +24,100 @@ Example JSON:
   "email": "test@example.com",
   "age": 25,
   "salary": 50000.50,
-  "is_active": true
+  "is_active": true,
+  "address": {
+    "street": "123 Main St",
+    "city": "Anytown",
+    "state": "CA",
+    "zip": "12345"
+  },
+  "tags": [
+    {
+      "id": 1,
+      "label": "admin"
+    },
+    {
+      "id": 2,
+      "label": "user"
+    }
+  ]
 }
 ```
 
 This generates a model like:
 ```dart
-import 'dart:convert';
-
-UserResponse userResponseFromJson(String str) => UserResponse.fromJson(json.decode(str));
-
-String userResponseToJson(UserResponse data) => json.encode(data.toJson());
-
 class UserResponse {
-    final int? id;
-    final dynamic name;
-    final String? email;
-    final int? age;
-    final double? salary;
-    final bool? isActive;
+  final int? id;
+  final dynamic name;
+  final String? email;
+  final int? age;
+  final double? salary;
+  final bool? isActive;
+  final Address? address;
+  final List<Tag>? tags;
 
- const UserResponse({
-        this.id,
-        this.name,
-        this.email,
-        this.age,
-        this.salary,
-        this.isActive,
-    });
+  const UserResponse({
+    this.id,
+    this.name,
+    this.email,
+    this.age,
+    this.salary,
+    this.isActive,
+    this.address,
+    this.tags,
+  });
 
-    factory UserResponse.fromJson(Map<String, dynamic> json) => UserResponse(
+  factory UserResponse.fromJson(Map<String, dynamic> json) => UserResponse(
         id: json["id"],
         name: json["name"],
         email: json["email"],
         age: json["age"],
         salary: json["salary"]?.toDouble(),
         isActive: json["is_active"],
-    );
-
-    Map<String, dynamic> toJson() => {
-        "id": id,
-        "name": name,
-        "email": email,
-        "age": age,
-        "salary": salary,
-        "is_active": isActive,
-    };
+        address: json["address"] == null
+            ? null
+            : Address.fromJson(json["address"]),
+        tags: json["tags"] == null
+            ? []
+            : List<Tag>.from(
+                json["tags"].map((x) => Tag.fromJson(x)),
+              ),
+      );
 }
+
+class Address {
+  final String? city;
+  final String? state;
+  final String? country;
+
+  const Address({
+    this.city,
+    this.state,
+    this.country,
+  });
+
+  factory Address.fromJson(Map<String, dynamic> json) => Address(
+        city: json["city"],
+        state: json["state"],
+        country: json["country"],
+      );
+}
+
+class Tag {
+  final int? id;
+  final String? label;
+
+  const Tag({
+    this.id,
+    this.label,
+  });
+
+  factory Tag.fromJson(Map<String, dynamic> json) => Tag(
+        id: json["id"],
+        label: json["label"],
+      );
+}
+
 ```
 
 ### Step 2: Add AutoSafe JSON Package
@@ -104,32 +151,73 @@ Run the AutoSafe CLI to automatically transform your model:
 import 'package:autosafe_json/autosafe_json.dart';
 
 class UserResponse {
-  final int? id;            // ← Primitive type preserved
+  final int? id;
   final String? name;
-  final String? email;
-  final int? age;            // ← Primitive type preserved
-  final double? salary;      // ← Primitive type preserved
-  final bool? isActive;      // ← Primitive type preserved
+  final int? age;
+  final double? salary;
+  final bool? isActive;
+  final Address? address;
+  final List<Tag>? tags;
 
-
- const UserResponse({
-        this.id,
-        this.name,
-        this.email,
-        this.age,
-        this.salary,
-        this.isActive,
-    });
-
+  const UserResponse({
+    this.id,
+    this.name,
+    this.age,
+    this.salary,
+    this.isActive,
+    this.address,
+    this.tags,
+  });
   factory UserResponse.fromJson(Map<String, dynamic> json) {
-    json = json.autoSafe.raw;  // ← Added automatically!
+    json = json.autoSafe.raw; // inserted automatically by autosafe_json CLI
     return UserResponse(
       id: SafeJson.asInt(json["id"]),
       name: SafeJson.asString(json["name"]),
-      email: SafeJson.asString(json["email"]),
       age: SafeJson.asInt(json["age"]),
       salary: SafeJson.asDouble(json["salary"]),
       isActive: SafeJson.asBool(json["is_active"]),
+      address: json["address"] == null || json["address"] == ""
+          ? null
+          : Address.fromJson(SafeJson.asMap(json["address"])),
+      tags: json["tags"] == null || json["tags"] == ""
+          ? []
+          : List<Tag>.from(
+              SafeJson.asList(json["tags"]).map((x) => Tag.fromJson(SafeJson.asMap(x)))),
+    );
+  }
+}
+class Address {
+  final String? city;
+  final String? state;
+  final String? country;
+  
+  const Address({
+    this.city,
+    this.state,
+    this.country,
+  });
+  
+  factory Address.fromJson(Map<String, dynamic> json) {
+    return Address(
+      city: SafeJson.asString(json["city"]),
+      state: SafeJson.asString(json["state"]),
+      country: SafeJson.asString(json["country"]),
+    );
+  }
+}
+class Tag {
+  final int? id;
+  final String? label;
+  
+  const Tag({
+    this.id,
+    this.label,
+  });
+  
+  factory Tag.fromJson(Map<String, dynamic> json) {
+    return Tag(
+      id: SafeJson.asInt(json["id"]),
+      label: SafeJson.asString(json["label"]),
     );
   }
 }
@@ -163,44 +251,6 @@ factory Business.fromJson(Map<String, dynamic> json) {
 {"0": "value1", "1": "value2"} → ["value1", "value2"]
 // If a Map is passed to asList(), it safely returns []
 ```
-
-### Step 5: Use Specific Types When Needed
-
-Declare the field with the type you expect and let the CLI insert the proper helper call:
-
-```dart
-class UserResponse {
-  final int? id;             // ← Keep as int? if you need it as int
-  final String? name;
-  final String? email;
-  final int? age;            // ← Keep as int? if you need it as int
-  final double? salary;      // ← Keep as double? if you need it as double
-  final bool? isActive;      // ← Keep as bool? if you need it as bool
-
-
- const UserResponse({
-        this.id,
-        this.name,
-        this.email,
-        this.age,
-        this.salary,
-        this.isActive,
-    });
-
-  factory UserResponse.fromJson(Map<String, dynamic> json) {
-    json = json.autoSafe.raw;
-    return UserResponse(
-      id: SafeJson.asInt(json["id"]),
-      name: SafeJson.asString(json["name"]),
-      email: SafeJson.asString(json["email"]),
-      age: SafeJson.asInt(json["age"]),
-      salary: SafeJson.asDouble(json["salary"]),
-      isActive: SafeJson.asBool(json["is_active"]),
-    );
-  }
-}
-```
-
 **That's it!** 🎉 Your JSON parsing will **NEVER** throw type mismatch errors again!
 
 ---
