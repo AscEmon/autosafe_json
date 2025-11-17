@@ -149,4 +149,16 @@ class SafeJson {
       return false;
     }
   }
+  
+  static num asNum(dynamic thisValue) {
+    final value = thisValue?.toString();
+    if (value == null || value == '') {
+      return 0;
+    }
+    try {
+      return num.parse(value);
+    } catch (e) {
+      return 0;
+    }
+  }
 }

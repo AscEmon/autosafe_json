@@ -51,6 +51,8 @@ Remember to import:
     content = wrapObjectsAndLists(content);
     content = wrapPrimitiveFields(content);
     content = updateNullChecks(content);
+    // Second pass to catch any patterns that appear after updateNullChecks
+    content = wrapObjectsAndLists(content);
 
     file.writeAsStringSync(content);
 
@@ -261,9 +263,9 @@ String wrapObjectsAndLists(String content) {
     },
   );
 
-  // Pattern 2: Wrap Lists of custom objects with SafeJson.asList()
+  // Pattern 2a: Wrap Lists of custom objects with SafeJson.asList() and SafeJson.asMap() (with !)
   // Match: List<ClassName>.from(json["field"]!.map((x) => ClassName.fromJson(x)))
-  // Replace with: List<ClassName>.from(SafeJson.asList(json["field"]).map((x) => ClassName.fromJson(x)))
+  // Replace with: List<ClassName>.from(SafeJson.asList(json["field"]).map((x) => ClassName.fromJson(SafeJson.asMap(x))))
   content = content.replaceAllMapped(
     RegExp(
         r'List<(\w+)>\.from\(json\["(\w+)"\]!\.map\(\(x\) => (\w+)\.fromJson\(x\)\)\)'),
@@ -272,12 +274,89 @@ String wrapObjectsAndLists(String content) {
       final fieldName = m.group(2);
       final className = m.group(3);
 
-      // Don't wrap if it's already wrapped
-      if (content.contains('SafeJson.asList(json["$fieldName"])')) {
-        return m.group(0)!;
-      }
+      return 'List<$listType>.from(SafeJson.asList(json["$fieldName"]).map((x) => $className.fromJson(SafeJson.asMap(x))))';
+    },
+  );
 
-      return 'List<$listType>.from(SafeJson.asList(json["$fieldName"]).map((x) => $className.fromJson(x)))';
+  // Pattern 2b: Wrap Lists of custom objects with SafeJson.asList() and SafeJson.asMap() (without !)
+  // Match: List<ClassName>.from(json["field"].map((x) => ClassName.fromJson(x)))
+  // Replace with: List<ClassName>.from(SafeJson.asList(json["field"]).map((x) => ClassName.fromJson(SafeJson.asMap(x))))
+  content = content.replaceAllMapped(
+    RegExp(
+        r'List<(\w+)>\.from\(json\["(\w+)"\]\.map\(\(x\) => (\w+)\.fromJson\(x\)\)\)'),
+    (m) {
+      final listType = m.group(1);
+      final fieldName = m.group(2);
+      final className = m.group(3);
+
+      return 'List<$listType>.from(SafeJson.asList(json["$fieldName"]).map((x) => $className.fromJson(SafeJson.asMap(x))))';
+    },
+  );
+
+  // Pattern 2c: Handle already wrapped with SafeJson.asList but missing SafeJson.asMap on items
+  // Match: SafeJson.asList(json["field"]).map((x) => ClassName.fromJson(x))
+  // Replace with: SafeJson.asList(json["field"]).map((x) => ClassName.fromJson(SafeJson.asMap(x)))
+  content = content.replaceAllMapped(
+    RegExp(
+        r'SafeJson\.asList\(json\["(\w+)"\]\)\.map\(\(x\) => (\w+)\.fromJson\(x\)\)'),
+    (m) {
+      final fieldName = m.group(1);
+      final className = m.group(2);
+
+      return 'SafeJson.asList(json["$fieldName"]).map((x) => $className.fromJson(SafeJson.asMap(x)))';
+    },
+  );
+
+  // Pattern 2d: Wrap items that are already using fromJson but not wrapped with SafeJson.asMap
+  // Match: .map((x) => ClassName.fromJson(x)) where x is not already wrapped
+  // Replace with: .map((x) => ClassName.fromJson(SafeJson.asMap(x)))
+  content = content.replaceAllMapped(
+    RegExp(r'\.map\(\(x\) => (\w+)\.fromJson\(x\)\)'),
+    (m) {
+      final className = m.group(1);
+      // Check if it's not already wrapped with SafeJson.asMap
+      return '.map((x) => $className.fromJson(SafeJson.asMap(x)))';
+    },
+  );
+
+  // Pattern 2e: Wrap json["field"]! with SafeJson.asList when used in List.from
+  // Match: json["field"]!.map in context of List<Type>.from
+  // Replace with: SafeJson.asList(json["field"]).map
+  content = content.replaceAllMapped(
+    RegExp(
+        r'json\["(\w+)"\]!\.map\(\(x\) => (\w+)\.fromJson\(SafeJson\.asMap\(x\)\)\)'),
+    (m) {
+      final fieldName = m.group(1);
+      final className = m.group(2);
+      return 'SafeJson.asList(json["$fieldName"]).map((x) => $className.fromJson(SafeJson.asMap(x)))';
+    },
+  );
+
+  // Pattern 2f: Final catch-all for any remaining json["field"]!.map patterns with fromJson
+  // This handles multiline cases and any patterns missed by previous rules
+  // Using multiline mode and allowing any whitespace/newlines
+  content = content.replaceAllMapped(
+    RegExp(
+        r'json\["(\w+)"\]!\.map\s*\(\s*\(x\)\s*=>\s*(\w+)\.fromJson\(x\)\s*,?\s*\)',
+        multiLine: true,
+        dotAll: true),
+    (m) {
+      final fieldName = m.group(1);
+      final className = m.group(2);
+      return 'SafeJson.asList(json["$fieldName"]).map((x) => $className.fromJson(SafeJson.asMap(x)))';
+    },
+  );
+
+  // Pattern 2g: Catch-all for json["field"].map (without !) patterns with fromJson
+  content = content.replaceAllMapped(
+    RegExp(
+        r'json\["(\w+)"\]\.map\s*\(\s*\(x\)\s*=>\s*(\w+)\.fromJson\(x\)\s*,?\s*\)',
+        multiLine: true,
+        dotAll: true),
+    (m) {
+      final fieldName = m.group(1);
+      final className = m.group(2);
+      return 'SafeJson.asList(json["$fieldName"]).map((x) => $className.fromJson(SafeJson.asMap(x)))';
     },
   );
 
@@ -287,61 +366,227 @@ String wrapObjectsAndLists(String content) {
     RegExp(r'List<dynamic>\.from\(json\["(\w+)"\]!\.map\(\(x\) => x\)\)'),
     (m) {
       final fieldName = m.group(1);
-
-      // Don't wrap if it's already wrapped
-      if (content.contains('SafeJson.asList(json["$fieldName"])')) {
-        return m.group(0)!;
-      }
-
       return 'List<dynamic>.from(SafeJson.asList(json["$fieldName"]).map((x) => x))';
     },
   );
 
-  // For List<bool?> - keep the conversion logic
+  // For List<bool> (non-nullable) - wrap with SafeJson.asBool
   content = content.replaceAllMapped(
-    RegExp(r'List<bool\?>\.from\(json\["(\w+)"\]!\.map\(\(x\) => (.+?)\)\)'),
+    RegExp(
+        r'List<bool>\.from\(SafeJson\.asList\(json\["(\w+)"\]\)\.map\(\(x\) => x\)\)'),
     (m) {
       final fieldName = m.group(1);
-      final conversion = m.group(2);
-
-      // Don't wrap if it's already wrapped
-      if (content.contains('SafeJson.asList(json["$fieldName"])')) {
-        return m.group(0)!;
-      }
-
-      return 'List<bool?>.from(SafeJson.asList(json["$fieldName"]).map((x) => $conversion))';
+      return 'List<bool>.from(SafeJson.asList(json["$fieldName"]).map((x) => SafeJson.asBool(x)))';
     },
   );
 
-  // For List<double?> - keep the conversion logic
+  // For List<bool> with ! operator
   content = content.replaceAllMapped(
-    RegExp(r'List<double\?>\.from\(json\["(\w+)"\]!\.map\(\(x\) => (.+?)\)\)'),
+    RegExp(r'List<bool>\.from\(json\["(\w+)"\]!\.map\(\(x\) => x\)\)'),
     (m) {
       final fieldName = m.group(1);
-      final conversion = m.group(2);
-
-      // Don't wrap if it's already wrapped
-      if (content.contains('SafeJson.asList(json["$fieldName"])')) {
-        return m.group(0)!;
-      }
-
-      return 'List<double?>.from(SafeJson.asList(json["$fieldName"]).map((x) => $conversion))';
+      return 'List<bool>.from(SafeJson.asList(json["$fieldName"]).map((x) => SafeJson.asBool(x)))';
     },
   );
 
-  // For List<int?> - keep the conversion logic
+  // For List<bool?> - wrap with SafeJson.asBool
   content = content.replaceAllMapped(
-    RegExp(r'List<int\?>\.from\(json\["(\w+)"\]!\.map\(\(x\) => (.+?)\)\)'),
+    RegExp(
+        r'List<bool\?>\.from\(SafeJson\.asList\(json\["(\w+)"\]\)\.map\(\(x\) => x\)\)'),
     (m) {
       final fieldName = m.group(1);
-      final conversion = m.group(2);
+      return 'List<bool?>.from(SafeJson.asList(json["$fieldName"]).map((x) => SafeJson.asBool(x)))';
+    },
+  );
 
-      // Don't wrap if it's already wrapped
-      if (content.contains('SafeJson.asList(json["$fieldName"])')) {
-        return m.group(0)!;
-      }
+  // For List<bool?> with ! operator
+  content = content.replaceAllMapped(
+    RegExp(r'List<bool\?>\.from\(json\["(\w+)"\]!\.map\(\(x\) => x\)\)'),
+    (m) {
+      final fieldName = m.group(1);
+      return 'List<bool?>.from(SafeJson.asList(json["$fieldName"]).map((x) => SafeJson.asBool(x)))';
+    },
+  );
 
-      return 'List<int?>.from(SafeJson.asList(json["$fieldName"]).map((x) => $conversion))';
+  // For List<bool?> without ! operator (needs both SafeJson.asList and SafeJson.asBool)
+  content = content.replaceAllMapped(
+    RegExp(r'List<bool\?>\.from\(json\["(\w+)"\]\.map\(\(x\) => x\)\)'),
+    (m) {
+      final fieldName = m.group(1);
+      return 'List<bool?>.from(SafeJson.asList(json["$fieldName"]).map((x) => SafeJson.asBool(x)))';
+    },
+  );
+
+  // For List<double> (non-nullable) - wrap with SafeJson.asDouble
+  content = content.replaceAllMapped(
+    RegExp(
+        r'List<double>\.from\(SafeJson\.asList\(json\["(\w+)"\]\)\.map\(\(x\) => x\)\)'),
+    (m) {
+      final fieldName = m.group(1);
+      return 'List<double>.from(SafeJson.asList(json["$fieldName"]).map((x) => SafeJson.asDouble(x)))';
+    },
+  );
+
+  // For List<double> with ! operator
+  content = content.replaceAllMapped(
+    RegExp(r'List<double>\.from\(json\["(\w+)"\]!\.map\(\(x\) => x\)\)'),
+    (m) {
+      final fieldName = m.group(1);
+      return 'List<double>.from(SafeJson.asList(json["$fieldName"]).map((x) => SafeJson.asDouble(x)))';
+    },
+  );
+
+  // For List<double?> - wrap with SafeJson.asDouble
+  content = content.replaceAllMapped(
+    RegExp(
+        r'List<double\?>\.from\(SafeJson\.asList\(json\["(\w+)"\]\)\.map\(\(x\) => x\)\)'),
+    (m) {
+      final fieldName = m.group(1);
+      return 'List<double?>.from(SafeJson.asList(json["$fieldName"]).map((x) => SafeJson.asDouble(x)))';
+    },
+  );
+
+  // For List<double?> with ! operator and (x) => x pattern
+  content = content.replaceAllMapped(
+    RegExp(r'List<double\?>\.from\(json\["(\w+)"\]!\.map\(\(x\) => x\)\)'),
+    (m) {
+      final fieldName = m.group(1);
+      return 'List<double?>.from(SafeJson.asList(json["$fieldName"]).map((x) => SafeJson.asDouble(x)))';
+    },
+  );
+
+  // For List<double?> with SafeJson.asList but still (x) => x
+  content = content.replaceAllMapped(
+    RegExp(
+        r'List<double\?>\.from\(SafeJson\.asList\(json\["(\w+)"\]\)\.map\(\(x\) => x\)\)'),
+    (m) {
+      final fieldName = m.group(1);
+      return 'List<double?>.from(SafeJson.asList(json["$fieldName"]).map((x) => SafeJson.asDouble(x)))';
+    },
+  );
+
+  // For List<double?> without ! operator (needs both SafeJson.asList and SafeJson.asDouble)
+  content = content.replaceAllMapped(
+    RegExp(r'List<double\?>\.from\(json\["(\w+)"\]\.map\(\(x\) => x\)\)'),
+    (m) {
+      final fieldName = m.group(1);
+      return 'List<double?>.from(SafeJson.asList(json["$fieldName"]).map((x) => SafeJson.asDouble(x)))';
+    },
+  );
+
+  // CRITICAL: Patterns for AFTER updateNullChecks runs (with == "" check)
+  // For List<double?> in ternary with full null check
+  content = content.replaceAllMapped(
+    RegExp(
+        r'json\["(\w+)"\]\s*==\s*null\s*\|\|\s*json\["\1"\]\s*==\s*""\s*\?\s*\[\]\s*:\s*List<double\?>\.from\(json\["\1"\]!\.map\(\(x\)\s*=>\s*x\)\)'),
+    (m) {
+      final fieldName = m.group(1);
+      return 'json["$fieldName"] == null || json["$fieldName"] == "" ? [] : List<double?>.from(SafeJson.asList(json["$fieldName"]).map((x) => SafeJson.asDouble(x)))';
+    },
+  );
+
+  // For List<double?> with double.tryParse pattern - replace with SafeJson.asDouble
+  content = content.replaceAllMapped(
+    RegExp(
+        r'List<double\?>\.from\(json\["(\w+)"\]!\.map\(\(x\)\s*=>\s*x\s*==\s*null\s*\|\|\s*x\s*==\s*""\s*\?\s*null\s*:\s*double\.tryParse\(x\.toString\(\)\)\)\)'),
+    (m) {
+      final fieldName = m.group(1);
+      return 'List<double?>.from(SafeJson.asList(json["$fieldName"]).map((x) => SafeJson.asDouble(x)))';
+    },
+  );
+
+  // For List<int?> with int.tryParse pattern - replace with SafeJson.asInt
+  content = content.replaceAllMapped(
+    RegExp(
+        r'List<int\?>\.from\(json\["(\w+)"\]!\.map\(\(x\)\s*=>\s*x\s*==\s*null\s*\|\|\s*x\s*==\s*""\s*\?\s*null\s*:\s*int\.tryParse\(x\.toString\(\)\)\)\)'),
+    (m) {
+      final fieldName = m.group(1);
+      return 'List<int?>.from(SafeJson.asList(json["$fieldName"]).map((x) => SafeJson.asInt(x)))';
+    },
+  );
+
+  // For List<int> (non-nullable) - wrap with SafeJson.asInt
+  content = content.replaceAllMapped(
+    RegExp(
+        r'List<int>\.from\(SafeJson\.asList\(json\["(\w+)"\]\)\.map\(\(x\) => x\)\)'),
+    (m) {
+      final fieldName = m.group(1);
+      return 'List<int>.from(SafeJson.asList(json["$fieldName"]).map((x) => SafeJson.asInt(x)))';
+    },
+  );
+
+  // For List<int> with ! operator
+  content = content.replaceAllMapped(
+    RegExp(r'List<int>\.from\(json\["(\w+)"\]!\.map\(\(x\) => x\)\)'),
+    (m) {
+      final fieldName = m.group(1);
+      return 'List<int>.from(SafeJson.asList(json["$fieldName"]).map((x) => SafeJson.asInt(x)))';
+    },
+  );
+
+  // For List<int?> - wrap with SafeJson.asInt (already has SafeJson.asList)
+  content = content.replaceAllMapped(
+    RegExp(
+        r'List<int\?>\.from\(SafeJson\.asList\(json\["(\w+)"\]\)\.map\(\(x\) => x\)\)'),
+    (m) {
+      final fieldName = m.group(1);
+      return 'List<int?>.from(SafeJson.asList(json["$fieldName"]).map((x) => SafeJson.asInt(x)))';
+    },
+  );
+
+  // For List<int?> with ! operator (needs both SafeJson.asList and SafeJson.asInt)
+  content = content.replaceAllMapped(
+    RegExp(r'List<int\?>\.from\(json\["(\w+)"\]!\.map\(\(x\) => x\)\)'),
+    (m) {
+      final fieldName = m.group(1);
+      return 'List<int?>.from(SafeJson.asList(json["$fieldName"]).map((x) => SafeJson.asInt(x)))';
+    },
+  );
+
+  // For List<int?> without ! operator (needs both SafeJson.asList and SafeJson.asInt)
+  content = content.replaceAllMapped(
+    RegExp(r'List<int\?>\.from\(json\["(\w+)"\]\.map\(\(x\) => x\)\)'),
+    (m) {
+      final fieldName = m.group(1);
+      return 'List<int?>.from(SafeJson.asList(json["$fieldName"]).map((x) => SafeJson.asInt(x)))';
+    },
+  );
+
+  // For List<String> (non-nullable) - wrap with SafeJson.asString
+  content = content.replaceAllMapped(
+    RegExp(
+        r'List<String>\.from\(SafeJson\.asList\(json\["(\w+)"\]\)\.map\(\(x\) => x\)\)'),
+    (m) {
+      final fieldName = m.group(1);
+      return 'List<String>.from(SafeJson.asList(json["$fieldName"]).map((x) => SafeJson.asString(x)))';
+    },
+  );
+
+  // For List<String> with ! operator
+  content = content.replaceAllMapped(
+    RegExp(r'List<String>\.from\(json\["(\w+)"\]!\.map\(\(x\) => x\)\)'),
+    (m) {
+      final fieldName = m.group(1);
+      return 'List<String>.from(SafeJson.asList(json["$fieldName"]).map((x) => SafeJson.asString(x)))';
+    },
+  );
+
+  // For List<String?> - wrap with SafeJson.asString
+  content = content.replaceAllMapped(
+    RegExp(
+        r'List<String\?>\.from\(SafeJson\.asList\(json\["(\w+)"\]\)\.map\(\(x\) => x\)\)'),
+    (m) {
+      final fieldName = m.group(1);
+      return 'List<String?>.from(SafeJson.asList(json["$fieldName"]).map((x) => SafeJson.asString(x)))';
+    },
+  );
+
+  // For List<String?> with ! operator
+  content = content.replaceAllMapped(
+    RegExp(r'List<String\?>\.from\(json\["(\w+)"\]!\.map\(\(x\) => x\)\)'),
+    (m) {
+      final fieldName = m.group(1);
+      return 'List<String?>.from(SafeJson.asList(json["$fieldName"]).map((x) => SafeJson.asString(x)))';
     },
   );
 
@@ -351,14 +596,14 @@ String wrapObjectsAndLists(String content) {
 String wrapPrimitiveFields(String content) {
   final lines = content.split('\n');
   final result = <String>[];
-  
+
   // Track current class field types
   final currentClassFields = <String, String>{};
   var inClass = false;
-  
+
   for (var i = 0; i < lines.length; i++) {
     final line = lines[i];
-    
+
     // Detect class start
     if (line.contains('class ') && line.contains('{')) {
       inClass = true;
@@ -366,9 +611,12 @@ String wrapPrimitiveFields(String content) {
       result.add(line);
       continue;
     }
-    
+
     // Detect class end
-    if (inClass && line.trim() == '}' && !line.contains('factory') && !line.contains('Map<String')) {
+    if (inClass &&
+        line.trim() == '}' &&
+        !line.contains('factory') &&
+        !line.contains('Map<String')) {
       // Check if this is the end of the class (not a method)
       var braceCount = 0;
       for (var j = i - 1; j >= 0; j--) {
@@ -381,36 +629,38 @@ String wrapPrimitiveFields(String content) {
         currentClassFields.clear();
       }
     }
-    
+
     // Collect field types in current class
     if (inClass) {
-      final fieldMatch = RegExp(r'final\s+(int|double|bool|String)\s*\?\s+(\w+)\s*;').firstMatch(line);
+      final fieldMatch =
+          RegExp(r'final\s+(int|double|bool|String|num)\s*\?\s+(\w+)\s*;')
+              .firstMatch(line);
       if (fieldMatch != null) {
         final type = fieldMatch.group(1)!;
         final fieldName = fieldMatch.group(2)!;
         currentClassFields[fieldName] = type;
       }
     }
-    
+
     // Check if already wrapped or has null check
     if (line.contains('SafeJson.') || line.contains('== null')) {
       result.add(line);
       continue;
     }
-    
+
     // Wrap json assignments
     if (line.contains('json["')) {
       var modifiedLine = line;
       final pattern = RegExp(r'(\w+):\s*json\["(\w+)"\]');
       final matches = pattern.allMatches(line);
-      
+
       for (var match in matches) {
         final fieldName = match.group(1)!;
         final jsonKey = match.group(2)!;
-        
+
         if (currentClassFields.containsKey(fieldName)) {
           final type = currentClassFields[fieldName]!;
-          
+
           if (type == 'int') {
             modifiedLine = modifiedLine.replaceFirst(
               'json["$jsonKey"]',
@@ -431,16 +681,21 @@ String wrapPrimitiveFields(String content) {
               'json["$jsonKey"]',
               'SafeJson.asString(json["$jsonKey"])',
             );
+          } else if (type == 'num') {
+            modifiedLine = modifiedLine.replaceFirst(
+              'json["$jsonKey"]',
+              'SafeJson.asNum(json["$jsonKey"])',
+            );
           }
         }
       }
-      
+
       result.add(modifiedLine);
     } else {
       result.add(line);
     }
   }
-  
+
   return result.join('\n');
 }
 
@@ -449,26 +704,9 @@ String updateNullChecks(String content) {
   content =
       content.replaceAll(RegExp(r'\?\.(toDouble|toString|toInt)\(\)'), '');
 
-  // Update List<int?> mapping to parse int
-  content = content.replaceAllMapped(
-    RegExp(r'List<int\?>.from\(json\["(\w+)"\]!\.map\(\(x\) => x\)\)'),
-    (m) =>
-        'List<int?>.from(json["${m.group(1)}"]!.map((x) => x == null || x == "" ? null : int.tryParse(x.toString())))',
-  );
-
-  // Update List<double?> mapping to parse double
-  content = content.replaceAllMapped(
-    RegExp(r'List<double\?>.from\(json\["(\w+)"\]!\.map\(\(x\) => x\)\)'),
-    (m) =>
-        'List<double?>.from(json["${m.group(1)}"]!.map((x) => x == null || x == "" ? null : double.tryParse(x.toString())))',
-  );
-
-  // Update List<bool?> mapping to parse bool
-  content = content.replaceAllMapped(
-    RegExp(r'List<bool\?>.from\(json\["(\w+)"\]!\.map\(\(x\) => x\)\)'),
-    (m) =>
-        'List<bool?>.from(json["${m.group(1)}"]!.map((x) => x == null || x == "" ? null : x.toString().toLowerCase() == "true"))',
-  );
+  // NOTE: Removed the old tryParse patterns here because we now handle
+  // primitive list conversions with SafeJson.asInt/asDouble/asBool in wrapObjectsAndLists
+  // This prevents generating tryParse patterns that need to be replaced later
 
   // Then update null checks to include empty string checks
   // This handles both single-line and multi-line patterns

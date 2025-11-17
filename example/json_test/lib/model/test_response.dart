@@ -5,615 +5,1102 @@
 import 'dart:convert';
 import 'package:autosafe_json/autosafe_json.dart';
 
-TestResponse testResponseFromJson(String str) => TestResponse.fromJson(json.decode(str));
+TestResponse testResponseFromJson(String str) =>
+    TestResponse.fromJson(json.decode(str));
 
 String testResponseToJson(TestResponse data) => json.encode(data.toJson());
 
 class TestResponse {
-    final String? code;
-    final String? message;
-    final Data? data;
+  final String? code;
+  final String? message;
+  final Data? data;
 
-    TestResponse({
-        this.code,
-        this.message,
-        this.data,
-    });
+  TestResponse({this.code, this.message, this.data});
 
-    factory TestResponse.fromJson(Map<String, dynamic> json) {
+  factory TestResponse.fromJson(Map<String, dynamic> json) {
     json = json.autoSafe.raw;
     return TestResponse(
-        code: SafeJson.asString(json["code"]),
-        message: SafeJson.asString(json["message"]),
-        data: json["data"] == null || json["data"] == "" ? null : Data.fromJson(SafeJson.asMap(json["data"])),
+      code: SafeJson.asString(json["code"]),
+      message: SafeJson.asString(json["message"]),
+      data: json["data"] == null || json["data"] == ""
+          ? null
+          : Data.fromJson(SafeJson.asMap(json["data"])),
     );
   }
 
-    Map<String, dynamic> toJson() => {
-        "code": code,
-        "message": message,
-        "data": data?.toJson(),
-    };
+  Map<String, dynamic> toJson() => {
+    "code": code,
+    "message": message,
+    "data": data?.toJson(),
+  };
 }
 
 class Data {
-    final int? id;
-    final String? name;
-    final String? email;
-    final String? age;
-    final String? salary;
-    final IsActive? isActive;
-    final bool? isVerified;
-    final String? profileImageUrl;
-    final String? tags;
-    final Metadata? metadata;
-    final Business? business;
-    final List<Department>? departments;
-    final List<QrCode>? qrCodes;
-    final List<bool?>? permissions;
-    final List<double?>? scores;
-    final List<dynamic>? mixedArray;
-    final EmptyObject? emptyObject;
-    final List<dynamic>? emptyArray;
-    final DeepNesting? deepNesting;
+  final int? id;
+  final String? name;
+  final String? email;
+  final String? age;
+  final num? salary;
+  final bool? isActive;
+  final bool? isVerified;
+  final String? profileImageUrl;
+  final List<bool>? tags;
+  final List<int>? intValue;
+  final DataMetadata? metadata;
+  final Business? business;
+  final List<Department>? departments;
+  final List<QrCode>? qrCodes;
+  final List<InsurancePlan>? insurancePlans;
+  final List<bool?>? permissions;
+  final List<double?>? scores;
+  final List<dynamic>? mixedArray;
+  final EmptyObject? emptyObject;
+  final List<dynamic>? emptyArray;
+  final DeepNesting? deepNesting;
 
-    Data({
-        this.id,
-        this.name,
-        this.email,
-        this.age,
-        this.salary,
-        this.isActive,
-        this.isVerified,
-        this.profileImageUrl,
-        this.tags,
-        this.metadata,
-        this.business,
-        this.departments,
-        this.qrCodes,
-        this.permissions,
-        this.scores,
-        this.mixedArray,
-        this.emptyObject,
-        this.emptyArray,
-        this.deepNesting,
-    });
+  Data({
+    this.id,
+    this.name,
+    this.email,
+    this.age,
+    this.salary,
+    this.isActive,
+    this.isVerified,
+    this.profileImageUrl,
+    this.tags,
+    this.intValue,
+    this.metadata,
+    this.business,
+    this.departments,
+    this.qrCodes,
+    this.insurancePlans,
+    this.permissions,
+    this.scores,
+    this.mixedArray,
+    this.emptyObject,
+    this.emptyArray,
+    this.deepNesting,
+  });
 
-    factory Data.fromJson(Map<String, dynamic> json) => Data(
-        id: SafeJson.asInt(json["id"]),
-        name: SafeJson.asString(json["name"]),
-        email: SafeJson.asString(json["email"]),
-        age: SafeJson.asString(json["age"]),
-        salary: SafeJson.asString(json["salary"]),
-        isActive: json["is_active"] == null || json["is_active"] == "" ? null : IsActive.fromJson(SafeJson.asMap(json["is_active"])),
-        isVerified: SafeJson.asBool(json["is_verified"]),
-        profileImageUrl: SafeJson.asString(json["profile_image_url"]),
-        tags: SafeJson.asString(json["tags"]),
-        metadata: json["metadata"] == null || json["metadata"] == "" ? null : Metadata.fromJson(SafeJson.asMap(json["metadata"])),
-        business: json["business"] == null || json["business"] == "" ? null : Business.fromJson(SafeJson.asMap(json["business"])),
-        departments: json["departments"] == null || json["departments"] == "" ? [] : List<Department>.from(SafeJson.asList(json["departments"]).map((x) => Department.fromJson(x))),
-        qrCodes: json["qr_codes"] == null || json["qr_codes"] == "" ? [] : List<QrCode>.from(SafeJson.asList(json["qr_codes"]).map((x) => QrCode.fromJson(x))),
-        permissions: json["permissions"] == null || json["permissions"] == "" ? [] : List<bool?>.from(SafeJson.asList(json["permissions"]).map((x) => x)),
-        scores: json["scores"] == null || json["scores"] == "" ? [] : List<double?>.from(SafeJson.asList(json["scores"]).map((x) => x)),
-        mixedArray: json["mixed_array"] == null || json["mixed_array"] == "" ? [] : List<dynamic>.from(SafeJson.asList(json["mixed_array"]).map((x) => x)),
-        emptyObject: json["empty_object"] == null || json["empty_object"] == "" ? null : EmptyObject.fromJson(SafeJson.asMap(json["empty_object"])),
-        emptyArray: json["empty_array"] == null || json["empty_array"] == "" ? [] : List<dynamic>.from(SafeJson.asList(json["empty_array"]).map((x) => x)),
-        deepNesting: json["deep_nesting"] == null || json["deep_nesting"] == "" ? null : DeepNesting.fromJson(SafeJson.asMap(json["deep_nesting"])),
-    );
+  factory Data.fromJson(Map<String, dynamic> json) => Data(
+    id: SafeJson.asInt(json["id"]),
+    name: SafeJson.asString(json["name"]),
+    email: SafeJson.asString(json["email"]),
+    age: SafeJson.asString(json["age"]),
+    salary: SafeJson.asNum(json["salary"]),
+    isActive: SafeJson.asBool(json["is_active"]),
+    isVerified: SafeJson.asBool(json["is_verified"]),
+    profileImageUrl: SafeJson.asString(json["profile_image_url"]),
+    tags: json["tags"] == null || json["tags"] == ""
+        ? []
+        : List<bool>.from(
+            SafeJson.asList(json["tags"]).map((x) => SafeJson.asBool(x)),
+          ),
+    intValue: json["int_value"] == null || json["int_value"] == ""
+        ? []
+        : List<int>.from(
+            SafeJson.asList(json["int_value"]).map((x) => SafeJson.asInt(x)),
+          ),
+    metadata: json["metadata"] == null || json["metadata"] == ""
+        ? null
+        : DataMetadata.fromJson(SafeJson.asMap(json["metadata"])),
+    business: json["business"] == null || json["business"] == ""
+        ? null
+        : Business.fromJson(SafeJson.asMap(json["business"])),
+    departments: json["departments"] == null || json["departments"] == ""
+        ? []
+        : List<Department>.from(
+            SafeJson.asList(
+              json["departments"],
+            ).map((x) => Department.fromJson(SafeJson.asMap(x))),
+          ),
+    qrCodes: json["qr_codes"] == null || json["qr_codes"] == ""
+        ? []
+        : List<QrCode>.from(
+            SafeJson.asList(
+              json["qr_codes"],
+            ).map((x) => QrCode.fromJson(SafeJson.asMap(x))),
+          ),
+    insurancePlans:
+        json["insurance_plans"] == null || json["insurance_plans"] == ""
+        ? []
+        : List<InsurancePlan>.from(
+            SafeJson.asList(
+              json["insurance_plans"],
+            ).map((x) => InsurancePlan.fromJson(SafeJson.asMap(x))),
+          ),
+    permissions: json["permissions"] == null || json["permissions"] == ""
+        ? []
+        : List<bool?>.from(
+            SafeJson.asList(json["permissions"]).map((x) => SafeJson.asBool(x)),
+          ),
+    scores: json["scores"] == null || json["scores"] == ""
+        ? []
+        : List<double?>.from(
+            SafeJson.asList(json["scores"]).map((x) => SafeJson.asDouble(x)),
+          ),
+    mixedArray: json["mixed_array"] == null || json["mixed_array"] == ""
+        ? []
+        : List<dynamic>.from(
+            SafeJson.asList(json["mixed_array"]).map((x) => x),
+          ),
+    emptyObject: json["empty_object"] == null || json["empty_object"] == ""
+        ? null
+        : EmptyObject.fromJson(SafeJson.asMap(json["empty_object"])),
+    emptyArray: json["empty_array"] == null || json["empty_array"] == ""
+        ? []
+        : List<dynamic>.from(
+            SafeJson.asList(json["empty_array"]).map((x) => x),
+          ),
+    deepNesting: json["deep_nesting"] == null || json["deep_nesting"] == ""
+        ? null
+        : DeepNesting.fromJson(SafeJson.asMap(json["deep_nesting"])),
+  );
 
-    Map<String, dynamic> toJson() => {
-        "id": id,
-        "name": name,
-        "email": email,
-        "age": age,
-        "salary": salary,
-        "is_active": isActive?.toJson(),
-        "is_verified": isVerified,
-        "profile_image_url": profileImageUrl,
-        "tags": tags,
-        "metadata": metadata?.toJson(),
-        "business": business?.toJson(),
-        "departments": departments == null ? [] : List<dynamic>.from(departments!.map((x) => x.toJson())),
-        "qr_codes": qrCodes == null ? [] : List<dynamic>.from(qrCodes!.map((x) => x.toJson())),
-        "permissions": permissions == null ? [] : List<dynamic>.from(permissions!.map((x) => x)),
-        "scores": scores == null ? [] : List<dynamic>.from(scores!.map((x) => x)),
-        "mixed_array": mixedArray == null ? [] : List<dynamic>.from(mixedArray!.map((x) => x)),
-        "empty_object": emptyObject?.toJson(),
-        "empty_array": emptyArray == null ? [] : List<dynamic>.from(emptyArray!.map((x) => x)),
-        "deep_nesting": deepNesting?.toJson(),
-    };
+  Map<String, dynamic> toJson() => {
+    "id": id,
+    "name": name,
+    "email": email,
+    "age": age,
+    "salary": salary,
+    "is_active": isActive,
+    "is_verified": isVerified,
+    "profile_image_url": profileImageUrl,
+    "tags": tags == null ? [] : List<dynamic>.from(tags!.map((x) => x)),
+    "int_value": intValue == null
+        ? []
+        : List<dynamic>.from(intValue!.map((x) => x)),
+    "metadata": metadata?.toJson(),
+    "business": business?.toJson(),
+    "departments": departments == null
+        ? []
+        : List<dynamic>.from(departments!.map((x) => x.toJson())),
+    "qr_codes": qrCodes == null
+        ? []
+        : List<dynamic>.from(qrCodes!.map((x) => x.toJson())),
+    "insurance_plans": insurancePlans == null
+        ? []
+        : List<dynamic>.from(insurancePlans!.map((x) => x.toJson())),
+    "permissions": permissions == null
+        ? []
+        : List<dynamic>.from(permissions!.map((x) => x)),
+    "scores": scores == null ? [] : List<dynamic>.from(scores!.map((x) => x)),
+    "mixed_array": mixedArray == null
+        ? []
+        : List<dynamic>.from(mixedArray!.map((x) => x)),
+    "empty_object": emptyObject?.toJson(),
+    "empty_array": emptyArray == null
+        ? []
+        : List<dynamic>.from(emptyArray!.map((x) => x)),
+    "deep_nesting": deepNesting?.toJson(),
+  };
 }
 
 class Business {
-    final int? id;
-    final String? name;
-    final String? legalName;
-    final int? businessTypeId;
-    final String? salesEstimationRangeId;
-    final double? averageTransactionValue;
-    final bool? isActive;
-    final int? employeeCount;
-    final double? rating;
-    final Address? address;
-    final List<bool>? status;
+  final int? id;
+  final String? name;
+  final String? legalName;
+  final int? businessTypeId;
+  final String? salesEstimationRangeId;
+  final double? averageTransactionValue;
+  final bool? isActive;
+  final int? employeeCount;
+  final double? rating;
+  final Address? address;
+  final List<bool>? status;
 
-    Business({
-        this.id,
-        this.name,
-        this.legalName,
-        this.businessTypeId,
-        this.salesEstimationRangeId,
-        this.averageTransactionValue,
-        this.isActive,
-        this.employeeCount,
-        this.rating,
-        this.address,
-        this.status,
-    });
+  Business({
+    this.id,
+    this.name,
+    this.legalName,
+    this.businessTypeId,
+    this.salesEstimationRangeId,
+    this.averageTransactionValue,
+    this.isActive,
+    this.employeeCount,
+    this.rating,
+    this.address,
+    this.status,
+  });
 
-    factory Business.fromJson(Map<String, dynamic> json) => Business(
-        id: SafeJson.asInt(json["id"]),
-        name: SafeJson.asString(json["name"]),
-        legalName: SafeJson.asString(json["legal_name"]),
-        businessTypeId: SafeJson.asInt(json["business_type_id"]),
-        salesEstimationRangeId: SafeJson.asString(json["sales_estimation_range_id"]),
-        averageTransactionValue: SafeJson.asDouble(json["average_transaction_value"]),
-        isActive: SafeJson.asBool(json["is_active"]),
-        employeeCount: SafeJson.asInt(json["employee_count"]),
-        rating: SafeJson.asDouble(json["rating"]),
-        address: json["address"] == null || json["address"] == "" ? null : Address.fromJson(SafeJson.asMap(json["address"])),
-        status: json["status"] == null || json["status"] == "" ? [] : List<bool>.from(json["status"]!.map((x) => x)),
-    );
+  factory Business.fromJson(Map<String, dynamic> json) => Business(
+    id: SafeJson.asInt(json["id"]),
+    name: SafeJson.asString(json["name"]),
+    legalName: SafeJson.asString(json["legal_name"]),
+    businessTypeId: SafeJson.asInt(json["business_type_id"]),
+    salesEstimationRangeId: SafeJson.asString(
+      json["sales_estimation_range_id"],
+    ),
+    averageTransactionValue: SafeJson.asDouble(
+      json["average_transaction_value"],
+    ),
+    isActive: SafeJson.asBool(json["is_active"]),
+    employeeCount: SafeJson.asInt(json["employee_count"]),
+    rating: SafeJson.asDouble(json["rating"]),
+    address: json["address"] == null || json["address"] == ""
+        ? null
+        : Address.fromJson(SafeJson.asMap(json["address"])),
+    status: json["status"] == null || json["status"] == ""
+        ? []
+        : List<bool>.from(
+            SafeJson.asList(json["status"]).map((x) => SafeJson.asBool(x)),
+          ),
+  );
 
-    Map<String, dynamic> toJson() => {
-        "id": id,
-        "name": name,
-        "legal_name": legalName,
-        "business_type_id": businessTypeId,
-        "sales_estimation_range_id": salesEstimationRangeId,
-        "average_transaction_value": averageTransactionValue,
-        "is_active": isActive,
-        "employee_count": employeeCount,
-        "rating": rating,
-        "address": address?.toJson(),
-        "status": status == null ? [] : List<dynamic>.from(status!.map((x) => x)),
-    };
+  Map<String, dynamic> toJson() => {
+    "id": id,
+    "name": name,
+    "legal_name": legalName,
+    "business_type_id": businessTypeId,
+    "sales_estimation_range_id": salesEstimationRangeId,
+    "average_transaction_value": averageTransactionValue,
+    "is_active": isActive,
+    "employee_count": employeeCount,
+    "rating": rating,
+    "address": address?.toJson(),
+    "status": status == null ? [] : List<dynamic>.from(status!.map((x) => x)),
+  };
 }
 
 class Address {
-    final String? street;
-    final String? city;
-    final int? postcode;
-    final String? country;
-    final Coordinates? coordinates;
+  final String? street;
+  final String? city;
+  final int? postcode;
+  final String? country;
+  final Coordinates? coordinates;
 
-    Address({
-        this.street,
-        this.city,
-        this.postcode,
-        this.country,
-        this.coordinates,
-    });
+  Address({
+    this.street,
+    this.city,
+    this.postcode,
+    this.country,
+    this.coordinates,
+  });
 
-    factory Address.fromJson(Map<String, dynamic> json) => Address(
-        street: SafeJson.asString(json["street"]),
-        city: SafeJson.asString(json["city"]),
-        postcode: SafeJson.asInt(json["postcode"]),
-        country: SafeJson.asString(json["country"]),
-        coordinates: json["coordinates"] == null || json["coordinates"] == "" ? null : Coordinates.fromJson(SafeJson.asMap(json["coordinates"])),
-    );
+  factory Address.fromJson(Map<String, dynamic> json) => Address(
+    street: SafeJson.asString(json["street"]),
+    city: SafeJson.asString(json["city"]),
+    postcode: SafeJson.asInt(json["postcode"]),
+    country: SafeJson.asString(json["country"]),
+    coordinates: json["coordinates"] == null || json["coordinates"] == ""
+        ? null
+        : Coordinates.fromJson(SafeJson.asMap(json["coordinates"])),
+  );
 
-    Map<String, dynamic> toJson() => {
-        "street": street,
-        "city": city,
-        "postcode": postcode,
-        "country": country,
-        "coordinates": coordinates?.toJson(),
-    };
+  Map<String, dynamic> toJson() => {
+    "street": street,
+    "city": city,
+    "postcode": postcode,
+    "country": country,
+    "coordinates": coordinates?.toJson(),
+  };
 }
 
 class Coordinates {
-    final String? lat;
-    final double? long;
-    final String? altitude;
+  final String? lat;
+  final double? long;
+  final String? altitude;
 
-    Coordinates({
-        this.lat,
-        this.long,
-        this.altitude,
-    });
+  Coordinates({this.lat, this.long, this.altitude});
 
-    factory Coordinates.fromJson(Map<String, dynamic> json) => Coordinates(
-        lat: SafeJson.asString(json["lat"]),
-        long: SafeJson.asDouble(json["long"]),
-        altitude: SafeJson.asString(json["altitude"]),
-    );
+  factory Coordinates.fromJson(Map<String, dynamic> json) => Coordinates(
+    lat: SafeJson.asString(json["lat"]),
+    long: SafeJson.asDouble(json["long"]),
+    altitude: SafeJson.asString(json["altitude"]),
+  );
 
-    Map<String, dynamic> toJson() => {
-        "lat": lat,
-        "long": long,
-        "altitude": altitude,
-    };
+  Map<String, dynamic> toJson() => {
+    "lat": lat,
+    "long": long,
+    "altitude": altitude,
+  };
 }
 
 class DeepNesting {
-    final Level1? level1;
+  final Level1? level1;
 
-    DeepNesting({
-        this.level1,
-    });
+  DeepNesting({this.level1});
 
-    factory DeepNesting.fromJson(Map<String, dynamic> json) => DeepNesting(
-        level1: json["level1"] == null || json["level1"] == "" ? null : Level1.fromJson(SafeJson.asMap(json["level1"])),
-    );
+  factory DeepNesting.fromJson(Map<String, dynamic> json) => DeepNesting(
+    level1: json["level1"] == null || json["level1"] == ""
+        ? null
+        : Level1.fromJson(SafeJson.asMap(json["level1"])),
+  );
 
-    Map<String, dynamic> toJson() => {
-        "level1": level1?.toJson(),
-    };
+  Map<String, dynamic> toJson() => {"level1": level1?.toJson()};
 }
 
 class Level1 {
-    final int? id;
-    final String? name;
-    final Level2? level2;
+  final int? id;
+  final String? name;
+  final Level2? level2;
 
-    Level1({
-        this.id,
-        this.name,
-        this.level2,
-    });
+  Level1({this.id, this.name, this.level2});
 
-    factory Level1.fromJson(Map<String, dynamic> json) => Level1(
-        id: SafeJson.asInt(json["id"]),
-        name: SafeJson.asString(json["name"]),
-        level2: json["level2"] == null || json["level2"] == "" ? null : Level2.fromJson(SafeJson.asMap(json["level2"])),
-    );
+  factory Level1.fromJson(Map<String, dynamic> json) => Level1(
+    id: SafeJson.asInt(json["id"]),
+    name: SafeJson.asString(json["name"]),
+    level2: json["level2"] == null || json["level2"] == ""
+        ? null
+        : Level2.fromJson(SafeJson.asMap(json["level2"])),
+  );
 
-    Map<String, dynamic> toJson() => {
-        "id": id,
-        "name": name,
-        "level2": level2?.toJson(),
-    };
+  Map<String, dynamic> toJson() => {
+    "id": id,
+    "name": name,
+    "level2": level2?.toJson(),
+  };
 }
 
 class Level2 {
-    final int? id;
-    final double? value;
-    final bool? active;
-    final Level3? level3;
+  final int? id;
+  final double? value;
+  final bool? active;
+  final Level3? level3;
 
-    Level2({
-        this.id,
-        this.value,
-        this.active,
-        this.level3,
-    });
+  Level2({this.id, this.value, this.active, this.level3});
 
-    factory Level2.fromJson(Map<String, dynamic> json) => Level2(
-        id: SafeJson.asInt(json["id"]),
-        value: SafeJson.asDouble(json["value"]),
-        active: SafeJson.asBool(json["active"]),
-        level3: json["level3"] == null || json["level3"] == "" ? null : Level3.fromJson(SafeJson.asMap(json["level3"])),
-    );
+  factory Level2.fromJson(Map<String, dynamic> json) => Level2(
+    id: SafeJson.asInt(json["id"]),
+    value: SafeJson.asDouble(json["value"]),
+    active: SafeJson.asBool(json["active"]),
+    level3: json["level3"] == null || json["level3"] == ""
+        ? null
+        : Level3.fromJson(SafeJson.asMap(json["level3"])),
+  );
 
-    Map<String, dynamic> toJson() => {
-        "id": id,
-        "value": value,
-        "active": active,
-        "level3": level3?.toJson(),
-    };
+  Map<String, dynamic> toJson() => {
+    "id": id,
+    "value": value,
+    "active": active,
+    "level3": level3?.toJson(),
+  };
 }
 
 class Level3 {
-    final int? id;
-    final String? data;
-    final int? count;
-    final Level4? level4;
+  final int? id;
+  final String? data;
+  final int? count;
+  final Level4? level4;
 
-    Level3({
-        this.id,
-        this.data,
-        this.count,
-        this.level4,
-    });
+  Level3({this.id, this.data, this.count, this.level4});
 
-    factory Level3.fromJson(Map<String, dynamic> json) => Level3(
-        id: SafeJson.asInt(json["id"]),
-        data: SafeJson.asString(json["data"]),
-        count: SafeJson.asInt(json["count"]),
-        level4: json["level4"] == null || json["level4"] == "" ? null : Level4.fromJson(SafeJson.asMap(json["level4"])),
-    );
+  factory Level3.fromJson(Map<String, dynamic> json) => Level3(
+    id: SafeJson.asInt(json["id"]),
+    data: SafeJson.asString(json["data"]),
+    count: SafeJson.asInt(json["count"]),
+    level4: json["level4"] == null || json["level4"] == ""
+        ? null
+        : Level4.fromJson(SafeJson.asMap(json["level4"])),
+  );
 
-    Map<String, dynamic> toJson() => {
-        "id": id,
-        "data": data,
-        "count": count,
-        "level4": level4?.toJson(),
-    };
+  Map<String, dynamic> toJson() => {
+    "id": id,
+    "data": data,
+    "count": count,
+    "level4": level4?.toJson(),
+  };
 }
 
 class Level4 {
-    final int? id;
-    final String? finalValue;
-    final bool? isComplete;
+  final int? id;
+  final String? finalValue;
+  final bool? isComplete;
 
-    Level4({
-        this.id,
-        this.finalValue,
-        this.isComplete,
-    });
+  Level4({this.id, this.finalValue, this.isComplete});
 
-    factory Level4.fromJson(Map<String, dynamic> json) => Level4(
-        id: SafeJson.asInt(json["id"]),
-        finalValue: SafeJson.asString(json["final_value"]),
-        isComplete: SafeJson.asBool(json["is_complete"]),
-    );
+  factory Level4.fromJson(Map<String, dynamic> json) => Level4(
+    id: SafeJson.asInt(json["id"]),
+    finalValue: SafeJson.asString(json["final_value"]),
+    isComplete: SafeJson.asBool(json["is_complete"]),
+  );
 
-    Map<String, dynamic> toJson() => {
-        "id": id,
-        "final_value": finalValue,
-        "is_complete": isComplete,
-    };
+  Map<String, dynamic> toJson() => {
+    "id": id,
+    "final_value": finalValue,
+    "is_complete": isComplete,
+  };
 }
 
 class Department {
-    final int? id;
-    final String? name;
-    final String? description;
-    final int? headCount;
-    final int? budget;
-    final bool? isActive;
+  final int? id;
+  final String? name;
+  final String? description;
+  final int? headCount;
+  final int? budget;
+  final bool? isActive;
 
-    Department({
-        this.id,
-        this.name,
-        this.description,
-        this.headCount,
-        this.budget,
-        this.isActive,
-    });
+  Department({
+    this.id,
+    this.name,
+    this.description,
+    this.headCount,
+    this.budget,
+    this.isActive,
+  });
 
-    factory Department.fromJson(Map<String, dynamic> json) => Department(
-        id: SafeJson.asInt(json["id"]),
-        name: SafeJson.asString(json["name"]),
-        description: SafeJson.asString(json["description"]),
-        headCount: SafeJson.asInt(json["head_count"]),
-        budget: SafeJson.asInt(json["budget"]),
-        isActive: SafeJson.asBool(json["is_active"]),
-    );
+  factory Department.fromJson(Map<String, dynamic> json) => Department(
+    id: SafeJson.asInt(json["id"]),
+    name: SafeJson.asString(json["name"]),
+    description: SafeJson.asString(json["description"]),
+    headCount: SafeJson.asInt(json["head_count"]),
+    budget: SafeJson.asInt(json["budget"]),
+    isActive: SafeJson.asBool(json["is_active"]),
+  );
 
-    Map<String, dynamic> toJson() => {
-        "id": id,
-        "name": name,
-        "description": description,
-        "head_count": headCount,
-        "budget": budget,
-        "is_active": isActive,
-    };
+  Map<String, dynamic> toJson() => {
+    "id": id,
+    "name": name,
+    "description": description,
+    "head_count": headCount,
+    "budget": budget,
+    "is_active": isActive,
+  };
 }
 
 class EmptyObject {
-    EmptyObject();
+  EmptyObject();
 
-    factory EmptyObject.fromJson(Map<String, dynamic> json) => EmptyObject(
-    );
+  factory EmptyObject.fromJson(Map<String, dynamic> json) => EmptyObject();
 
-    Map<String, dynamic> toJson() => {
-    };
+  Map<String, dynamic> toJson() => {};
 }
 
-class IsActive {
-    final List<String>? v;
+class InsurancePlan {
+  final int? planId;
+  final String? planName;
+  final String? planType;
+  final String? premiumAmount;
+  final String? coverageAmount;
+  final int? termYears;
+  final bool? isActive;
+  final Provider? provider;
+  final List<Beneficiary>? beneficiaries;
+  final CoverageDetails? coverageDetails;
+  final PremiumBreakdown? premiumBreakdown;
+  final List<Rider>? riders;
 
-    IsActive({
-        this.v,
-    });
+  InsurancePlan({
+    this.planId,
+    this.planName,
+    this.planType,
+    this.premiumAmount,
+    this.coverageAmount,
+    this.termYears,
+    this.isActive,
+    this.provider,
+    this.beneficiaries,
+    this.coverageDetails,
+    this.premiumBreakdown,
+    this.riders,
+  });
 
-    factory IsActive.fromJson(Map<String, dynamic> json) => IsActive(
-        v: json["v"] == null || json["v"] == "" ? [] : List<String>.from(json["v"]!.map((x) => x)),
-    );
+  factory InsurancePlan.fromJson(Map<String, dynamic> json) => InsurancePlan(
+    planId: SafeJson.asInt(json["plan_id"]),
+    planName: SafeJson.asString(json["plan_name"]),
+    planType: SafeJson.asString(json["plan_type"]),
+    premiumAmount: SafeJson.asString(json["premium_amount"]),
+    coverageAmount: SafeJson.asString(json["coverage_amount"]),
+    termYears: SafeJson.asInt(json["term_years"]),
+    isActive: SafeJson.asBool(json["is_active"]),
+    provider: json["provider"] == null || json["provider"] == ""
+        ? null
+        : Provider.fromJson(SafeJson.asMap(json["provider"])),
+    beneficiaries: json["beneficiaries"] == null || json["beneficiaries"] == ""
+        ? []
+        : List<Beneficiary>.from(
+            SafeJson.asList(
+              json["beneficiaries"],
+            ).map((x) => Beneficiary.fromJson(SafeJson.asMap(x))),
+          ),
+    coverageDetails:
+        json["coverage_details"] == null || json["coverage_details"] == ""
+        ? null
+        : CoverageDetails.fromJson(SafeJson.asMap(json["coverage_details"])),
+    premiumBreakdown:
+        json["premium_breakdown"] == null || json["premium_breakdown"] == ""
+        ? null
+        : PremiumBreakdown.fromJson(SafeJson.asMap(json["premium_breakdown"])),
+    riders: json["riders"] == null || json["riders"] == ""
+        ? []
+        : List<Rider>.from(
+            SafeJson.asList(
+              json["riders"],
+            ).map((x) => Rider.fromJson(SafeJson.asMap(x))),
+          ),
+  );
 
-    Map<String, dynamic> toJson() => {
-        "v": v == null ? [] : List<dynamic>.from(v!.map((x) => x)),
-    };
+  Map<String, dynamic> toJson() => {
+    "plan_id": planId,
+    "plan_name": planName,
+    "plan_type": planType,
+    "premium_amount": premiumAmount,
+    "coverage_amount": coverageAmount,
+    "term_years": termYears,
+    "is_active": isActive,
+    "provider": provider?.toJson(),
+    "beneficiaries": beneficiaries == null
+        ? []
+        : List<dynamic>.from(beneficiaries!.map((x) => x.toJson())),
+    "coverage_details": coverageDetails?.toJson(),
+    "premium_breakdown": premiumBreakdown?.toJson(),
+    "riders": riders == null
+        ? []
+        : List<dynamic>.from(riders!.map((x) => x.toJson())),
+  };
 }
 
-class Metadata {
-    final int? createdBy;
-    final String? updatedBy;
-    final double? version;
-    final bool? isPublished;
-    final Settings? settings;
+class Beneficiary {
+  final String? name;
+  final String? relationship;
+  final DateTime? dateOfBirth;
+  final int? percentage;
+  final BeneficiaryContact? contact;
 
-    Metadata({
-        this.createdBy,
-        this.updatedBy,
-        this.version,
-        this.isPublished,
-        this.settings,
-    });
+  Beneficiary({
+    this.name,
+    this.relationship,
+    this.dateOfBirth,
+    this.percentage,
+    this.contact,
+  });
 
-    factory Metadata.fromJson(Map<String, dynamic> json) => Metadata(
-        createdBy: SafeJson.asInt(json["created_by"]),
-        updatedBy: SafeJson.asString(json["updated_by"]),
-        version: SafeJson.asDouble(json["version"]),
-        isPublished: SafeJson.asBool(json["is_published"]),
-        settings: json["settings"] == null || json["settings"] == "" ? null : Settings.fromJson(SafeJson.asMap(json["settings"])),
-    );
+  factory Beneficiary.fromJson(Map<String, dynamic> json) => Beneficiary(
+    name: SafeJson.asString(json["name"]),
+    relationship: SafeJson.asString(json["relationship"]),
+    dateOfBirth: json["date_of_birth"] == null || json["date_of_birth"] == ""
+        ? null
+        : DateTime.parse(json["date_of_birth"]),
+    percentage: SafeJson.asInt(json["percentage"]),
+    contact: json["contact"] == null || json["contact"] == ""
+        ? null
+        : BeneficiaryContact.fromJson(SafeJson.asMap(json["contact"])),
+  );
 
-    Map<String, dynamic> toJson() => {
-        "created_by": createdBy,
-        "updated_by": updatedBy,
-        "version": version,
-        "is_published": isPublished,
-        "settings": settings?.toJson(),
-    };
+  Map<String, dynamic> toJson() => {
+    "name": name,
+    "relationship": relationship,
+    "date_of_birth": dateOfBirth == null
+        ? null
+        : "${dateOfBirth!.year.toString().padLeft(4, '0')}-${dateOfBirth!.month.toString().padLeft(2, '0')}-${dateOfBirth!.day.toString().padLeft(2, '0')}",
+    "percentage": percentage,
+    "contact": contact?.toJson(),
+  };
+}
+
+class BeneficiaryContact {
+  final String? email;
+  final String? phone;
+
+  BeneficiaryContact({this.email, this.phone});
+
+  factory BeneficiaryContact.fromJson(Map<String, dynamic> json) =>
+      BeneficiaryContact(
+        email: SafeJson.asString(json["email"]),
+        phone: SafeJson.asString(json["phone"]),
+      );
+
+  Map<String, dynamic> toJson() => {"email": email, "phone": phone};
+}
+
+class CoverageDetails {
+  final String? basicCover;
+  final String? accidentalCover;
+  final String? criticalIllnessCover;
+  final String? hospitalizationCover;
+  final String? maternityCover;
+  final String? dentalCover;
+  final String? visionCover;
+  final List<AdditionalBenefit>? additionalBenefits;
+
+  CoverageDetails({
+    this.basicCover,
+    this.accidentalCover,
+    this.criticalIllnessCover,
+    this.hospitalizationCover,
+    this.maternityCover,
+    this.dentalCover,
+    this.visionCover,
+    this.additionalBenefits,
+  });
+
+  factory CoverageDetails.fromJson(Map<String, dynamic> json) =>
+      CoverageDetails(
+        basicCover: SafeJson.asString(json["basic_cover"]),
+        accidentalCover: SafeJson.asString(json["accidental_cover"]),
+        criticalIllnessCover: SafeJson.asString(json["critical_illness_cover"]),
+        hospitalizationCover: SafeJson.asString(json["hospitalization_cover"]),
+        maternityCover: SafeJson.asString(json["maternity_cover"]),
+        dentalCover: SafeJson.asString(json["dental_cover"]),
+        visionCover: SafeJson.asString(json["vision_cover"]),
+        additionalBenefits:
+            json["additional_benefits"] == null ||
+                json["additional_benefits"] == ""
+            ? []
+            : List<AdditionalBenefit>.from(
+                SafeJson.asList(
+                  json["additional_benefits"],
+                ).map((x) => AdditionalBenefit.fromJson(SafeJson.asMap(x))),
+              ),
+      );
+
+  Map<String, dynamic> toJson() => {
+    "basic_cover": basicCover,
+    "accidental_cover": accidentalCover,
+    "critical_illness_cover": criticalIllnessCover,
+    "hospitalization_cover": hospitalizationCover,
+    "maternity_cover": maternityCover,
+    "dental_cover": dentalCover,
+    "vision_cover": visionCover,
+    "additional_benefits": additionalBenefits == null
+        ? []
+        : List<dynamic>.from(additionalBenefits!.map((x) => x.toJson())),
+  };
+}
+
+class AdditionalBenefit {
+  final String? benefitName;
+  final String? benefitValue;
+  final String? frequency;
+
+  AdditionalBenefit({this.benefitName, this.benefitValue, this.frequency});
+
+  factory AdditionalBenefit.fromJson(Map<String, dynamic> json) =>
+      AdditionalBenefit(
+        benefitName: SafeJson.asString(json["benefit_name"]),
+        benefitValue: SafeJson.asString(json["benefit_value"]),
+        frequency: SafeJson.asString(json["frequency"]),
+      );
+
+  Map<String, dynamic> toJson() => {
+    "benefit_name": benefitName,
+    "benefit_value": benefitValue,
+    "frequency": frequency,
+  };
+}
+
+class PremiumBreakdown {
+  final String? basePremium;
+  final String? taxAmount;
+  final String? serviceCharge;
+  final String? discount;
+  final String? totalPremium;
+  final String? paymentFrequency;
+  final DateTime? nextPaymentDate;
+
+  PremiumBreakdown({
+    this.basePremium,
+    this.taxAmount,
+    this.serviceCharge,
+    this.discount,
+    this.totalPremium,
+    this.paymentFrequency,
+    this.nextPaymentDate,
+  });
+
+  factory PremiumBreakdown.fromJson(Map<String, dynamic> json) =>
+      PremiumBreakdown(
+        basePremium: SafeJson.asString(json["base_premium"]),
+        taxAmount: SafeJson.asString(json["tax_amount"]),
+        serviceCharge: SafeJson.asString(json["service_charge"]),
+        discount: SafeJson.asString(json["discount"]),
+        totalPremium: SafeJson.asString(json["total_premium"]),
+        paymentFrequency: SafeJson.asString(json["payment_frequency"]),
+        nextPaymentDate:
+            json["next_payment_date"] == null || json["next_payment_date"] == ""
+            ? null
+            : DateTime.parse(json["next_payment_date"]),
+      );
+
+  Map<String, dynamic> toJson() => {
+    "base_premium": basePremium,
+    "tax_amount": taxAmount,
+    "service_charge": serviceCharge,
+    "discount": discount,
+    "total_premium": totalPremium,
+    "payment_frequency": paymentFrequency,
+    "next_payment_date":
+        "${nextPaymentDate!.year.toString().padLeft(4, '0')}-${nextPaymentDate!.month.toString().padLeft(2, '0')}-${nextPaymentDate!.day.toString().padLeft(2, '0')}",
+  };
+}
+
+class Provider {
+  final String? providerId;
+  final String? providerName;
+  final String? providerLogo;
+  final double? rating;
+  final ProviderContact? contact;
+
+  Provider({
+    this.providerId,
+    this.providerName,
+    this.providerLogo,
+    this.rating,
+    this.contact,
+  });
+
+  factory Provider.fromJson(Map<String, dynamic> json) => Provider(
+    providerId: SafeJson.asString(json["provider_id"]),
+    providerName: SafeJson.asString(json["provider_name"]),
+    providerLogo: SafeJson.asString(json["provider_logo"]),
+    rating: SafeJson.asDouble(json["rating"]),
+    contact: json["contact"] == null || json["contact"] == ""
+        ? null
+        : ProviderContact.fromJson(SafeJson.asMap(json["contact"])),
+  );
+
+  Map<String, dynamic> toJson() => {
+    "provider_id": providerId,
+    "provider_name": providerName,
+    "provider_logo": providerLogo,
+    "rating": rating,
+    "contact": contact?.toJson(),
+  };
+}
+
+class ProviderContact {
+  final String? email;
+  final String? phone;
+  final String? address;
+
+  ProviderContact({this.email, this.phone, this.address});
+
+  factory ProviderContact.fromJson(Map<String, dynamic> json) =>
+      ProviderContact(
+        email: SafeJson.asString(json["email"]),
+        phone: SafeJson.asString(json["phone"]),
+        address: SafeJson.asString(json["address"]),
+      );
+
+  Map<String, dynamic> toJson() => {
+    "email": email,
+    "phone": phone,
+    "address": address,
+  };
+}
+
+class Rider {
+  final int? riderId;
+  final String? riderName;
+  final String? riderPremium;
+  final String? riderCoverage;
+  final bool? isActive;
+
+  Rider({
+    this.riderId,
+    this.riderName,
+    this.riderPremium,
+    this.riderCoverage,
+    this.isActive,
+  });
+
+  factory Rider.fromJson(Map<String, dynamic> json) => Rider(
+    riderId: SafeJson.asInt(json["rider_id"]),
+    riderName: SafeJson.asString(json["rider_name"]),
+    riderPremium: SafeJson.asString(json["rider_premium"]),
+    riderCoverage: SafeJson.asString(json["rider_coverage"]),
+    isActive: SafeJson.asBool(json["is_active"]),
+  );
+
+  Map<String, dynamic> toJson() => {
+    "rider_id": riderId,
+    "rider_name": riderName,
+    "rider_premium": riderPremium,
+    "rider_coverage": riderCoverage,
+    "is_active": isActive,
+  };
+}
+
+class DataMetadata {
+  final int? createdBy;
+  final double? version;
+  final bool? isPublished;
+  final Settings? settings;
+
+  DataMetadata({this.createdBy, this.version, this.isPublished, this.settings});
+
+  factory DataMetadata.fromJson(Map<String, dynamic> json) => DataMetadata(
+    createdBy: SafeJson.asInt(json["created_by"]),
+    version: SafeJson.asDouble(json["version"]),
+    isPublished: SafeJson.asBool(json["is_published"]),
+    settings: json["settings"] == null || json["settings"] == ""
+        ? null
+        : Settings.fromJson(SafeJson.asMap(json["settings"])),
+  );
+
+  Map<String, dynamic> toJson() => {
+    "created_by": createdBy,
+    "version": version,
+    "is_published": isPublished,
+    "settings": settings?.toJson(),
+  };
 }
 
 class Settings {
-    final String? theme;
-    final bool? notificationsEnabled;
-    final int? maxItems;
-    final double? price;
-    final String? nestedNull;
+  final String? theme;
+  final bool? notificationsEnabled;
+  final int? maxItems;
+  final double? price;
+  final String? nestedNull;
 
-    Settings({
-        this.theme,
-        this.notificationsEnabled,
-        this.maxItems,
-        this.price,
-        this.nestedNull,
-    });
+  Settings({
+    this.theme,
+    this.notificationsEnabled,
+    this.maxItems,
+    this.price,
+    this.nestedNull,
+  });
 
-    factory Settings.fromJson(Map<String, dynamic> json) => Settings(
-        theme: SafeJson.asString(json["theme"]),
-        notificationsEnabled: SafeJson.asBool(json["notifications_enabled"]),
-        maxItems: SafeJson.asInt(json["max_items"]),
-        price: SafeJson.asDouble(json["price"]),
-        nestedNull: SafeJson.asString(json["nested_null"]),
-    );
+  factory Settings.fromJson(Map<String, dynamic> json) => Settings(
+    theme: SafeJson.asString(json["theme"]),
+    notificationsEnabled: SafeJson.asBool(json["notifications_enabled"]),
+    maxItems: SafeJson.asInt(json["max_items"]),
+    price: SafeJson.asDouble(json["price"]),
+    nestedNull: SafeJson.asString(json["nested_null"]),
+  );
 
-    Map<String, dynamic> toJson() => {
-        "theme": theme,
-        "notifications_enabled": notificationsEnabled,
-        "max_items": maxItems,
-        "price": price,
-        "nested_null": nestedNull,
-    };
+  Map<String, dynamic> toJson() => {
+    "theme": theme,
+    "notifications_enabled": notificationsEnabled,
+    "max_items": maxItems,
+    "price": price,
+    "nested_null": nestedNull,
+  };
 }
 
 class MixedArrayClass {
-    final int? nestedId;
-    final String? nestedName;
-    final bool? nestedActive;
+  final int? nestedId;
+  final String? nestedName;
+  final bool? nestedActive;
 
-    MixedArrayClass({
-        this.nestedId,
-        this.nestedName,
-        this.nestedActive,
-    });
+  MixedArrayClass({this.nestedId, this.nestedName, this.nestedActive});
 
-    factory MixedArrayClass.fromJson(Map<String, dynamic> json) => MixedArrayClass(
+  factory MixedArrayClass.fromJson(Map<String, dynamic> json) =>
+      MixedArrayClass(
         nestedId: SafeJson.asInt(json["nested_id"]),
         nestedName: SafeJson.asString(json["nested_name"]),
         nestedActive: SafeJson.asBool(json["nested_active"]),
-    );
+      );
 
-    Map<String, dynamic> toJson() => {
-        "nested_id": nestedId,
-        "nested_name": nestedName,
-        "nested_active": nestedActive,
-    };
+  Map<String, dynamic> toJson() => {
+    "nested_id": nestedId,
+    "nested_name": nestedName,
+    "nested_active": nestedActive,
+  };
 }
 
 class QrCode {
-    final int? id;
-    final String? code;
-    final int? type;
-    final String? typeLabel;
-    final int? amountType;
-    final String? amountTypeLabel;
-    final String? currency;
-    final int? scanCount;
-    final String? successfulPaymentCount;
-    final double? totalAmountCollected;
-    final bool? isActive;
-    final bool? isStatic;
-    final bool? isDynamic;
-    final bool? hasExpired;
-    final bool? canAcceptPayments;
-    final String? metadata;
-    final String? expiresAt;
-    final DateTime? createdAt;
-    final CreatedBy? store;
-    final CreatedBy? createdBy;
+  final int? id;
+  final String? code;
+  final int? type;
+  final String? typeLabel;
+  final int? amountType;
+  final String? amountTypeLabel;
+  final String? currency;
+  final int? scanCount;
+  final int? successfulPaymentCount;
+  final double? totalAmountCollected;
+  final bool? isActive;
+  final bool? isStatic;
+  final bool? isDynamic;
+  final bool? hasExpired;
+  final bool? canAcceptPayments;
+  final QrCodeMetadata? metadata;
+  final DateTime? expiresAt;
+  final DateTime? createdAt;
+  final Store? store;
+  final CreatedBy? createdBy;
+  final List<PaymentMethod>? paymentMethods;
 
-    QrCode({
-        this.id,
-        this.code,
-        this.type,
-        this.typeLabel,
-        this.amountType,
-        this.amountTypeLabel,
-        this.currency,
-        this.scanCount,
-        this.successfulPaymentCount,
-        this.totalAmountCollected,
-        this.isActive,
-        this.isStatic,
-        this.isDynamic,
-        this.hasExpired,
-        this.canAcceptPayments,
-        this.metadata,
-        this.expiresAt,
-        this.createdAt,
-        this.store,
-        this.createdBy,
-    });
+  QrCode({
+    this.id,
+    this.code,
+    this.type,
+    this.typeLabel,
+    this.amountType,
+    this.amountTypeLabel,
+    this.currency,
+    this.scanCount,
+    this.successfulPaymentCount,
+    this.totalAmountCollected,
+    this.isActive,
+    this.isStatic,
+    this.isDynamic,
+    this.hasExpired,
+    this.canAcceptPayments,
+    this.metadata,
+    this.expiresAt,
+    this.createdAt,
+    this.store,
+    this.createdBy,
+    this.paymentMethods,
+  });
 
-    factory QrCode.fromJson(Map<String, dynamic> json) => QrCode(
-        id: SafeJson.asInt(json["id"]),
-        code: SafeJson.asString(json["code"]),
-        type: SafeJson.asInt(json["type"]),
-        typeLabel: SafeJson.asString(json["type_label"]),
-        amountType: SafeJson.asInt(json["amount_type"]),
-        amountTypeLabel: SafeJson.asString(json["amount_type_label"]),
-        currency: SafeJson.asString(json["currency"]),
-        scanCount: SafeJson.asInt(json["scan_count"]),
-        successfulPaymentCount: SafeJson.asString(json["successful_payment_count"]),
-        totalAmountCollected: SafeJson.asDouble(json["total_amount_collected"]),
-        isActive: SafeJson.asBool(json["is_active"]),
-        isStatic: SafeJson.asBool(json["is_static"]),
-        isDynamic: SafeJson.asBool(json["is_dynamic"]),
-        hasExpired: SafeJson.asBool(json["has_expired"]),
-        canAcceptPayments: SafeJson.asBool(json["can_accept_payments"]),
-        metadata: SafeJson.asString(json["metadata"]),
-        expiresAt: SafeJson.asString(json["expires_at"]),
-        createdAt: json["created_at"] == null || json["created_at"] == "" ? null : DateTime.parse(json["created_at"]),
-        store: json["store"] == null || json["store"] == "" ? null : CreatedBy.fromJson(SafeJson.asMap(json["store"])),
-        createdBy: json["created_by"] == null || json["created_by"] == "" ? null : CreatedBy.fromJson(SafeJson.asMap(json["created_by"])),
-    );
+  factory QrCode.fromJson(Map<String, dynamic> json) => QrCode(
+    id: SafeJson.asInt(json["id"]),
+    code: SafeJson.asString(json["code"]),
+    type: SafeJson.asInt(json["type"]),
+    typeLabel: SafeJson.asString(json["type_label"]),
+    amountType: SafeJson.asInt(json["amount_type"]),
+    amountTypeLabel: SafeJson.asString(json["amount_type_label"]),
+    currency: SafeJson.asString(json["currency"]),
+    scanCount: SafeJson.asInt(json["scan_count"]),
+    successfulPaymentCount: SafeJson.asInt(json["successful_payment_count"]),
+    totalAmountCollected: SafeJson.asDouble(json["total_amount_collected"]),
+    isActive: SafeJson.asBool(json["is_active"]),
+    isStatic: SafeJson.asBool(json["is_static"]),
+    isDynamic: SafeJson.asBool(json["is_dynamic"]),
+    hasExpired: SafeJson.asBool(json["has_expired"]),
+    canAcceptPayments: SafeJson.asBool(json["can_accept_payments"]),
+    metadata: json["metadata"] == null || json["metadata"] == ""
+        ? null
+        : QrCodeMetadata.fromJson(SafeJson.asMap(json["metadata"])),
+    expiresAt: json["expires_at"] == null || json["expires_at"] == ""
+        ? null
+        : DateTime.parse(json["expires_at"]),
+    createdAt: json["created_at"] == null || json["created_at"] == ""
+        ? null
+        : DateTime.parse(json["created_at"]),
+    store: json["store"] == null || json["store"] == ""
+        ? null
+        : Store.fromJson(SafeJson.asMap(json["store"])),
+    createdBy: json["created_by"] == null || json["created_by"] == ""
+        ? null
+        : CreatedBy.fromJson(SafeJson.asMap(json["created_by"])),
+    paymentMethods:
+        json["payment_methods"] == null || json["payment_methods"] == ""
+        ? []
+        : List<PaymentMethod>.from(
+            SafeJson.asList(
+              json["payment_methods"],
+            ).map((x) => PaymentMethod.fromJson(SafeJson.asMap(x))),
+          ),
+  );
 
-    Map<String, dynamic> toJson() => {
-        "id": id,
-        "code": code,
-        "type": type,
-        "type_label": typeLabel,
-        "amount_type": amountType,
-        "amount_type_label": amountTypeLabel,
-        "currency": currency,
-        "scan_count": scanCount,
-        "successful_payment_count": successfulPaymentCount,
-        "total_amount_collected": totalAmountCollected,
-        "is_active": isActive,
-        "is_static": isStatic,
-        "is_dynamic": isDynamic,
-        "has_expired": hasExpired,
-        "can_accept_payments": canAcceptPayments,
-        "metadata": metadata,
-        "expires_at": expiresAt,
-        "created_at": createdAt?.toIso8601String(),
-        "store": store?.toJson(),
-        "created_by": createdBy?.toJson(),
-    };
+  Map<String, dynamic> toJson() => {
+    "id": id,
+    "code": code,
+    "type": type,
+    "type_label": typeLabel,
+    "amount_type": amountType,
+    "amount_type_label": amountTypeLabel,
+    "currency": currency,
+    "scan_count": scanCount,
+    "successful_payment_count": successfulPaymentCount,
+    "total_amount_collected": totalAmountCollected,
+    "is_active": isActive,
+    "is_static": isStatic,
+    "is_dynamic": isDynamic,
+    "has_expired": hasExpired,
+    "can_accept_payments": canAcceptPayments,
+    "metadata": metadata?.toJson(),
+    "expires_at": expiresAt?.toIso8601String(),
+    "created_at": createdAt?.toIso8601String(),
+    "store": store?.toJson(),
+    "created_by": createdBy?.toJson(),
+    "payment_methods": paymentMethods == null
+        ? []
+        : List<dynamic>.from(paymentMethods!.map((x) => x.toJson())),
+  };
 }
 
 class CreatedBy {
-    final int? id;
-    final String? name;
+  final int? id;
+  final String? name;
+  final String? role;
 
-    CreatedBy({
-        this.id,
-        this.name,
-    });
+  CreatedBy({this.id, this.name, this.role});
 
-    factory CreatedBy.fromJson(Map<String, dynamic> json) => CreatedBy(
-        id: SafeJson.asInt(json["id"]),
-        name: SafeJson.asString(json["name"]),
-    );
+  factory CreatedBy.fromJson(Map<String, dynamic> json) => CreatedBy(
+    id: SafeJson.asInt(json["id"]),
+    name: SafeJson.asString(json["name"]),
+    role: SafeJson.asString(json["role"]),
+  );
 
-    Map<String, dynamic> toJson() => {
-        "id": id,
-        "name": name,
-    };
+  Map<String, dynamic> toJson() => {"id": id, "name": name, "role": role};
+}
+
+class QrCodeMetadata {
+  final int? campaignId;
+  final String? notes;
+
+  QrCodeMetadata({this.campaignId, this.notes});
+
+  factory QrCodeMetadata.fromJson(Map<String, dynamic> json) => QrCodeMetadata(
+    campaignId: SafeJson.asInt(json["campaign_id"]),
+    notes: SafeJson.asString(json["notes"]),
+  );
+
+  Map<String, dynamic> toJson() => {"campaign_id": campaignId, "notes": notes};
+}
+
+class PaymentMethod {
+  final int? id;
+  final String? name;
+  final bool? enabled;
+  final double? feePercentage;
+
+  PaymentMethod({this.id, this.name, this.enabled, this.feePercentage});
+
+  factory PaymentMethod.fromJson(Map<String, dynamic> json) => PaymentMethod(
+    id: SafeJson.asInt(json["id"]),
+    name: SafeJson.asString(json["name"]),
+    enabled: SafeJson.asBool(json["enabled"]),
+    feePercentage: SafeJson.asDouble(json["fee_percentage"]),
+  );
+
+  Map<String, dynamic> toJson() => {
+    "id": id,
+    "name": name,
+    "enabled": enabled,
+    "fee_percentage": feePercentage,
+  };
+}
+
+class Store {
+  final int? id;
+  final String? name;
+  final String? location;
+  final Manager? manager;
+
+  Store({this.id, this.name, this.location, this.manager});
+
+  factory Store.fromJson(Map<String, dynamic> json) => Store(
+    id: SafeJson.asInt(json["id"]),
+    name: SafeJson.asString(json["name"]),
+    location: SafeJson.asString(json["location"]),
+    manager: json["manager"] == null || json["manager"] == ""
+        ? null
+        : Manager.fromJson(SafeJson.asMap(json["manager"])),
+  );
+
+  Map<String, dynamic> toJson() => {
+    "id": id,
+    "name": name,
+    "location": location,
+    "manager": manager?.toJson(),
+  };
+}
+
+class Manager {
+  final int? id;
+  final String? name;
+  final String? email;
+  final String? phone;
+
+  Manager({this.id, this.name, this.email, this.phone});
+
+  factory Manager.fromJson(Map<String, dynamic> json) => Manager(
+    id: SafeJson.asInt(json["id"]),
+    name: SafeJson.asString(json["name"]),
+    email: SafeJson.asString(json["email"]),
+    phone: SafeJson.asString(json["phone"]),
+  );
+
+  Map<String, dynamic> toJson() => {
+    "id": id,
+    "name": name,
+    "email": email,
+    "phone": phone,
+  };
 }

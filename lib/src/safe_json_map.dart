@@ -60,6 +60,9 @@ class SafeJsonMap {
       // Everything else (String, etc.)
       return SafeJson.asString(value);
     }
+    if (value is num) {
+      return SafeJson.asNum(value);
+    }
   }
 
   /// Safe getter for raw map

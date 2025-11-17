@@ -11,29 +11,39 @@
         "is_verified": false,
         "profile_image_url": null,
         "tags": [
-            false,
-            true
-        ],
-        "metadata": {
-            "created_by": 101,
-            "updated_by": null,
-            "version": 2.5,
-            "is_published": true,
-            "settings": {
-                "theme": "dark",
-                "notifications_enabled": false,
-                "max_items": 100,
-                "price": 99.99,
-                "nested_null": null
+            {
+                "tag1": "true"
+            },
+            {
+                "tag2": "false"
             }
-        },
+        ],
+        "int_value": [
+            1.03434,
+            2,
+            3
+        ],
+        "metadata": [
+            {
+                "created_by": 101,
+                "version": 2.5,
+                "is_published": true,
+                "settings": {
+                    "theme": "dark",
+                    "notifications_enabled": false,
+                    "max_items": 100,
+                    "price": 99.99,
+                    "nested_null": null
+                }
+            }
+        ],
         "business": {
             "id": 999,
             "name": null,
             "legal_name": "Test Business Ltd",
             "business_type_id": 5,
             "sales_estimation_range_id": null,
-            "average_transaction_value": 1500.75,
+            "average_transaction_value": "1500",
             "is_active": true,
             "employee_count": 50,
             "rating": 4.8,
@@ -92,12 +102,173 @@
                 "created_at": "2024-01-15T10:30:00Z",
                 "store": {
                     "id": 501,
-                    "name": null
+                    "name": null,
+                    "location": "Downtown",
+                    "manager": {
+                        "id": 301,
+                        "name": "Jane Smith",
+                        "email": null,
+                        "phone": "+44123456789"
+                    }
                 },
                 "created_by": {
                     "id": 601,
-                    "name": "John Doe"
-                }
+                    "name": "John Doe",
+                    "role": null
+                },
+                "payment_methods": [
+                    {
+                        "id": 1,
+                        "name": "Credit Card",
+                        "enabled": true,
+                        "fee_percentage": 2.5
+                    },
+                    {
+                        "id": 2,
+                        "name": null,
+                        "enabled": false,
+                        "fee_percentage": null
+                    }
+                ]
+            },
+            {
+                "id": 1002,
+                "code": null,
+                "type": null,
+                "type_label": "Dynamic",
+                "amount_type": 2,
+                "amount_type_label": null,
+                "currency": null,
+                "scan_count": null,
+                "successful_payment_count": 75,
+                "total_amount_collected": null,
+                "is_active": false,
+                "is_static": true,
+                "is_dynamic": false,
+                "has_expired": true,
+                "can_accept_payments": false,
+                "metadata": {
+                    "campaign_id": 999,
+                    "notes": null
+                },
+                "expires_at": "2024-12-31T23:59:59Z",
+                "created_at": null,
+                "store": null,
+                "created_by": {
+                    "id": null,
+                    "name": null,
+                    "role": "Admin"
+                },
+                "payment_methods": []
+            }
+        ],
+        "insurance_plans": [
+            {
+                "plan_id": 5001,
+                "plan_name": "Health Plus",
+                "plan_type": "health",
+                "premium_amount": "1500.00",
+                "coverage_amount": "500000",
+                "term_years": 10,
+                "is_active": true,
+                "provider": {
+                    "provider_id": "PRV001",
+                    "provider_name": "SafeLife Insurance",
+                    "provider_logo": "https://example.com/logo.png",
+                    "rating": 4.5,
+                    "contact": {
+                        "email": "contact@safelife.com",
+                        "phone": null,
+                        "address": null
+                    }
+                },
+                "beneficiaries": [
+                    {
+                        "name": "Alice Johnson",
+                        "relationship": "Spouse",
+                        "date_of_birth": "1990-05-15",
+                        "percentage": 50,
+                        "contact": {
+                            "email": null,
+                            "phone": "+1234567890"
+                        }
+                    },
+                    {
+                        "name": null,
+                        "relationship": "Child",
+                        "percentage": 50,
+                        "contact": null
+                    }
+                ],
+                "coverage_details": {
+                    "basic_cover": "100000",
+                    "accidental_cover": "200000",
+                    "critical_illness_cover": null,
+                    "hospitalization_cover": "50000",
+                    "maternity_cover": null,
+                    "dental_cover": "5000",
+                    "vision_cover": null,
+                    "additional_benefits": [
+                        {
+                            "benefit_name": "Free Health Checkup",
+                            "benefit_value": null,
+                            "frequency": "Annual"
+                        },
+                        {
+                            "benefit_name": null,
+                            "benefit_value": "1000",
+                            "frequency": null
+                        }
+                    ]
+                },
+                "premium_breakdown": {
+                    "base_premium": "1200.00",
+                    "tax_amount": "180.00",
+                    "service_charge": "120.00",
+                    "discount": null,
+                    "total_premium": "1500.00",
+                    "payment_frequency": "Monthly",
+                    "next_payment_date": "2024-02-01"
+                },
+                "riders": [
+                    {
+                        "rider_id": 101,
+                        "rider_name": "Accidental Death Benefit",
+                        "rider_premium": "50.00",
+                        "rider_coverage": "100000",
+                        "is_active": true
+                    },
+                    {
+                        "rider_id": null,
+                        "rider_name": null,
+                        "rider_premium": null,
+                        "rider_coverage": null,
+                        "is_active": false
+                    }
+                ]
+            },
+            {
+                "plan_id": null,
+                "plan_name": null,
+                "plan_type": "travel",
+                "premium_amount": null,
+                "coverage_amount": "100000",
+                "term_years": null,
+                "is_active": false,
+                "provider": null,
+                "beneficiaries": [],
+                "coverage_details": {
+                    "basic_cover": null,
+                    "accidental_cover": null,
+                    "critical_illness_cover": null,
+                    "hospitalization_cover": null,
+                    "maternity_cover": null,
+                    "dental_cover": null,
+                    "vision_cover": null,
+                    "additional_benefits": []
+                },
+                "premium_breakdown": null,
+                "riders": null
             }
         ],
         "permissions": [

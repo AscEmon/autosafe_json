@@ -62,20 +62,21 @@ class _MyHomePageState extends State<MyHomePage> {
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text("Email: ${testData?.email??'N/A'}"),
-              Text("Name: ${testData?.name??'N/A'}"),
-              Text("Age: ${testData?.age??'N/A'}"),
-              Text("Salary: ${testData?.salary??'N/A'}"),
-              Text("Is Active: ${testData?.isActive??'N/A'}"),
-              Text("Is Verified: ${testData?.isVerified??'N/A'}"),
-              Text("Profile Image URL: ${testData?.profileImageUrl??'N/A'}"),
-              Text("City: ${testData?.business?.address?.city??'N/A'}"),
+              Text("Email: ${testData?.email ?? 'N/A'}"),
+              Text("Name: ${testData?.name ?? 'N/A'}"),
+              Text("Age: ${testData?.age ?? 'N/A'}"),
+              Text("Salary: ${testData?.salary ?? 'N/A'}"),
+              Text("Is Active: ${testData?.isActive ?? 'N/A'}"),
+              Text("Is Verified: ${testData?.isVerified ?? 'N/A'}"),
+              Text("Profile Image URL: ${testData?.profileImageUrl ?? 'N/A'}"),
+              Text("City: ${testData?.business?.address?.city ?? 'N/A'}"),
               ListView.builder(
                 itemCount: testData?.tags?.length ?? 0,
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
-                itemBuilder: (context, index) =>
-                    Text("Tag $index: ${testData?.tags?[index].toString()??'N/A'}"),
+                itemBuilder: (context, index) => Text(
+                  "Tag $index: ${testData?.tags?[index].toString() ?? 'N/A'}",
+                ),
               ),
 
               ListView.builder(
@@ -83,7 +84,15 @@ class _MyHomePageState extends State<MyHomePage> {
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
                 itemBuilder: (context, index) => Text(
-                  "Permission $index: ${testData?.permissions?[index]?.toString()??'N/A'}",
+                  "Permission $index: ${testData?.permissions?[index]?.toString() ?? 'N/A'}",
+                ),
+              ),
+              ListView.builder(
+                itemCount: testData?.qrCodes?.length ?? 0,
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                itemBuilder: (context, index) => Text(
+                  "Permission $index: ${testData?.qrCodes?[index].toString() ?? 'N/A'}",
                 ),
               ),
             ],
