@@ -51,7 +51,7 @@ class UserResponse {
   final dynamic name;
   final String? email;
   final int? age;
-  final double? salary;
+  final num? salary;
   final bool? isActive;
   final Address? address;
   final List<Tag>? tags;
@@ -72,7 +72,7 @@ class UserResponse {
         name: json["name"],
         email: json["email"],
         age: json["age"],
-        salary: json["salary"]?.toDouble(),
+        salary: json["salary"],
         isActive: json["is_active"],
         address: json["address"] == null
             ? null
@@ -154,7 +154,7 @@ class UserResponse {
   final int? id;
   final String? name;
   final int? age;
-  final double? salary;
+  final num? salary;
   final bool? isActive;
   final Address? address;
   final List<Tag>? tags;
@@ -174,7 +174,7 @@ class UserResponse {
       id: SafeJson.asInt(json["id"]),
       name: SafeJson.asString(json["name"]),
       age: SafeJson.asInt(json["age"]),
-      salary: SafeJson.asDouble(json["salary"]),
+      salary: SafeJson.asNum(json["salary"]),
       isActive: SafeJson.asBool(json["is_active"]),
       address: json["address"] == null || json["address"] == ""
           ? null
